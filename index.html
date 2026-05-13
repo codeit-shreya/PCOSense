@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PCOSense – Know Your Body</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --peach: #FF8C69;
+    --peach-light: #FFD4C2;
+    --peach-pale: #FFF4EF;
+    --rose: #E85D75;
+    --rose-light: #FFB3C1;
+    --lavender: #C48DDA;
+    --lavender-light: #EDD9F7;
+    --mint: #5BBFA3;
+    --mint-light: #C2EFE4;
+    --yellow: #FFD166;
+    --yellow-light: #FFF3CC;
+    --blue: #4A90D9;
+    --cream: #FFFAF6;
+    --dark: #3D2B1F;
+    --text: #5C3D2E;
+    --text-soft: #9B7560;
+    --white: #FFFFFF;
+    --shadow: 0 8px 32px rgba(255,140,105,0.18);
+    --shadow-card: 0 4px 20px rgba(61,43,31,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: hidden;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 0;
+    animation: fadeSlideIn 0.45s cubic-bezier(.4,0,.2,1);
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .blob-1 { width: 260px; height: 260px; background: var(--peach); top: -80px; right: -60px; }
+  .blob-2 { width: 180px; height: 180px; background: var(--lavender); bottom: 60px; left: -60px; }
+  .blob-3 { width: 120px; height: 120px; background: var(--rose); top: 40%; right: -40px; }
+
+  #screen-welcome {
+    background: linear-gradient(160deg, #FF8C69 0%, #FFB89A 40%, #FFF4EF 100%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 28px;
+    gap: 0;
+  }
+
+  #screen-intro {
+    background: linear-gradient(160deg, #FF8C69 0%, #FFB89A 40%, #FFF4EF 100%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 28px;
+    gap: 0;
+    position: relative;
+  }
+  #screen-intro .intro-card {
+    background: rgba(255,255,255,0.92);
+    border: 2.5px solid rgba(255,255,255,0.7);
+    border-radius: 18px;
+    padding: 18px 20px;
+    font-weight: 800;
+    color: var(--text);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  }
+
+  .welcome-flower {
+    font-size: 72px;
+    animation: sway 3s ease-in-out infinite;
+    display: block;
+    margin-bottom: 12px;
+  }
+  @keyframes sway {
+    0%,100% { transform: rotate(-6deg) scale(1); }
+    50% { transform: rotate(6deg) scale(1.08); }
+  }
+
+  .welcome-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    margin-bottom: 6px;
+  }
+
+  .welcome-tagline {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  .lang-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.75);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .lang-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 36px;
+  }
+
+  .lang-btn {
+    background: rgba(255,255,255,0.92);
+    border: 2.5px solid transparent;
+    border-radius: 16px;
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lang-btn:hover, .lang-btn.selected {
+    border-color: var(--rose);
+    background: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,93,117,0.2);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--peach) 100%);
+    color: white;
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 18px 44px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(232,93,117,0.4);
+    transition: all 0.25s;
+    letter-spacing: 0.3px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-primary:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 32px rgba(232,93,117,0.45); }
+  .btn-primary:active { transform: translateY(0) scale(0.98); }
+
+  .header-bar {
+    background: var(--white);
+    padding: 18px 24px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 12px rgba(61,43,31,0.07);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-back {
+    width: 44px; height: 44px;
+    background: var(--peach-pale);
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .header-back:hover { background: var(--peach-light); transform: scale(1.08); }
+  .header-title { font-family: 'Baloo 2', cursive; font-size: 20px; font-weight: 700; color: var(--text); flex: 1; }
+
+  .progress-wrap {
+    padding: 12px 24px 0;
+    background: var(--white);
+  }
+  .progress-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .progress-bar-bg {
+    background: var(--peach-pale);
+    border-radius: 50px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--rose), var(--peach));
+    height: 100%;
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .q-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 20px 100px;
+  }
+
+  .q-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
+    border: 2px solid transparent;
+  }
+  .q-card.symptom-card { border-color: var(--peach-light); }
+  .q-card.lifestyle-card { border-color: var(--lavender-light); }
+
+  .q-number-pill {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--rose), var(--peach));
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 50px;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+  }
+  .q-card.lifestyle-card .q-number-pill {
+    background: linear-gradient(135deg, var(--lavender), var(--blue));
+  }
+
+  .q-question-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .q-question {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--dark);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .audio-btn {
+    width: 44px; height: 44px;
+    background: var(--yellow-light);
+    border: 2px solid var(--yellow);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .audio-btn:hover { background: var(--yellow); transform: scale(1.1); }
+  .audio-btn.playing { animation: pulse-audio 0.6s ease-in-out infinite alternate; }
+  @keyframes pulse-audio {
+    from { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,209,102,0.4); }
+    to { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(255,209,102,0); }
+  }
+
+  .q-explanation {
+    font-size: 13px;
+    color: var(--text-soft);
+    font-weight: 600;
+    line-height: 1.55;
+    background: var(--peach-pale);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .q-explanation.show { display: block; animation: fadeSlideIn 0.3s ease; }
+  .toggle-exp {
+    font-size: 12px;
+    color: var(--peach);
+    font-weight: 700;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+  }
+
+  .ysn-group { display: flex; gap: 10px; }
+  .ysn-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border-radius: 16px;
+    border: 2.5px solid #EEE;
+    background: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.22s;
+    text-align: center;
+    color: var(--text-soft);
+    position: relative;
+    overflow: hidden;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .ysn-btn .btn-icon { font-size: 20px; display: block; margin-bottom: 3px; }
+  .ysn-btn[data-val="yes"]:hover, .ysn-btn[data-val="yes"].active {
+    background: #FFE8E8; border-color: var(--rose); color: var(--rose);
+    transform: translateY(-2px); box-shadow: 0 6px 18px rgba(232,93,117,0.18);
+  }
+  .ysn-btn[data-val="sometimes"]:hover, .ysn-btn[data-val="sometimes"].active {
+    background: var(--yellow-light); border-color: var(--yellow); color: #A07800;
+    transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255,209,102,0.25);
+  }
+  .ysn-btn[data-val="no"]:hover, .ysn-btn[data-val="no"].active {
+    background: var(--mint-light); border-color: var(--mint); color: #2E7A67;
+    transform: translateY(-2px); box-shadow: 0 6px 18px rgba(91,191,163,0.2);
+  }
+
+  .lifestyle-options { display: flex; flex-direction: column; gap: 10px; }
+  .lifestyle-opt {
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 2.5px solid var(--lavender-light);
+    background: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.22s;
+    text-align: left;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+  }
+  .lifestyle-opt:hover, .lifestyle-opt.active {
+    background: var(--lavender-light);
+    border-color: var(--lavender);
+    color: #6B2E8A;
+    transform: translateX(4px);
+  }
+  .lifestyle-opt .opt-icon { font-size: 22px; flex-shrink: 0; }
+
+  .floating-btn-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    padding: 16px 24px 28px;
+    background: linear-gradient(to top, var(--cream) 70%, transparent);
+    z-index: 20;
+  }
+  .btn-next {
+    width: 100%;
+    background: linear-gradient(135deg, var(--rose) 0%, var(--peach) 100%);
+    color: white;
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 18px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(232,93,117,0.35);
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+  }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(232,93,117,0.4); }
+  .btn-next:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-next-lav {
+    background: linear-gradient(135deg, var(--lavender) 0%, var(--blue) 100%);
+    box-shadow: 0 6px 24px rgba(196,141,218,0.35);
+  }
+
+  #screen-result {
+    background: linear-gradient(160deg, #FFF4EF 0%, #FFFAF6 100%);
+  }
+  .result-body {
+    flex: 1;
+    padding: 24px 20px 120px;
+    overflow-y: auto;
+  }
+
+  .result-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0 24px;
+  }
+  .result-ring {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  .result-ring-low { background: linear-gradient(135deg, var(--mint), #3D9E87); }
+  .result-ring-moderate { background: linear-gradient(135deg, var(--yellow), #F0A000); }
+  .result-ring-high { background: linear-gradient(135deg, var(--rose), #C03050); }
+  .result-ring-emoji { font-size: 44px; }
+  .result-ring-label { color: white; font-family: 'Baloo 2', cursive; font-size: 14px; font-weight: 800; margin-top: 4px; letter-spacing: 0.5px; }
+
+  .result-heading { font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 800; text-align: center; color: var(--dark); margin-bottom: 6px; }
+  .result-subtext { font-size: 14px; color: var(--text-soft); text-align: center; font-weight: 600; line-height: 1.5; margin-bottom: 20px; padding: 0 16px; }
+
+  .reasons-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
+    border-left: 5px solid var(--peach);
+  }
+  .reasons-title { font-size: 14px; font-weight: 800; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .reason-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--peach-pale);
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--peach);
+    margin: 4px 4px 0 0;
+    border: 1.5px solid var(--peach-light);
+  }
+
+  .suggest-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
+    border-left: 5px solid var(--lavender);
+  }
+  .suggest-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .suggest-item:last-child { margin-bottom: 0; }
+  .suggest-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lavender); flex-shrink: 0; margin-top: 5px; }
+
+  .personalize-banner {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--peach) 100%);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 6px 24px rgba(232,93,117,0.28);
+    margin-bottom: 10px;
+    min-height: 80px;
+  }
+  .personalize-banner:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(232,93,117,0.35); }
+  .personalize-banner .pb-text { flex: 1; }
+  .personalize-banner .pb-title { font-family: 'Baloo 2', cursive; font-size: 17px; font-weight: 800; color: white; line-height: 1.2; }
+  .personalize-banner .pb-sub { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600; margin-top: 2px; }
+  .personalize-banner .pb-arrow { font-size: 22px; color: white; }
+
+  .skip-link { text-align: center; font-size: 13px; color: var(--text-soft); font-weight: 700; cursor: pointer; padding: 12px; text-decoration: underline; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+
+  #screen-advice { background: linear-gradient(160deg, var(--lavender-light) 0%, var(--cream) 100%); }
+  .advice-body { flex: 1; overflow-y: auto; padding: 20px 20px 100px; }
+  .advice-item-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    border: 2px solid var(--lavender-light);
+    animation: fadeSlideIn 0.4s ease backwards;
+  }
+  .advice-icon-wrap {
+    width: 48px; height: 48px;
+    background: var(--lavender-light);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .advice-topic { font-size: 12px; font-weight: 800; color: var(--lavender); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .advice-text { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.55; }
+
+  #screen-healthcare { background: linear-gradient(160deg, var(--mint-light) 0%, var(--cream) 100%); }
+  .health-body { flex: 1; overflow-y: auto; padding: 20px 20px 100px; }
+
+  .health-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 22px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+    border: 2px solid var(--mint-light);
+    animation: fadeSlideIn 0.4s ease backwards;
+  }
+  .health-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .health-card-icon { font-size: 30px; }
+  .health-card-title { font-family: 'Baloo 2', cursive; font-size: 18px; font-weight: 800; color: var(--dark); }
+  .health-card-desc { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.55; }
+  .health-tip {
+    background: var(--mint-light);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2A7A67;
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  #screen-final { background: linear-gradient(160deg, #FFF4EF 0%, var(--lavender-light) 50%, var(--mint-light) 100%); }
+  .final-body { flex: 1; overflow-y: auto; padding: 0 0 100px; }
+  .final-hero {
+    padding: 36px 24px 32px;
+    text-align: center;
+    position: relative;
+    transition: background 0.4s;
+  }
+  .final-hero.hero-low { background: linear-gradient(135deg, var(--mint), #3D9E87); }
+  .final-hero.hero-moderate { background: linear-gradient(135deg, #FFB347, #F0A000); }
+  .final-hero.hero-high { background: linear-gradient(135deg, var(--rose), #C03050); }
+  .final-hero-risk-icon { font-size: 56px; display: block; margin-bottom: 10px; animation: bounce 1s ease-in-out infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+  .final-hero-risk-label { font-family: 'Baloo 2', cursive; font-size: 28px; font-weight: 800; color: white; line-height: 1.1; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+  .final-hero-sub { font-size: 15px; color: rgba(255,255,255,0.88); font-weight: 600; margin-top: 8px; }
+  .final-sections { padding: 20px; }
+  .final-section-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+    animation: fadeSlideIn 0.4s ease backwards;
+  }
+  .final-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed var(--peach-light);
+  }
+  .final-section-icon { font-size: 26px; }
+  .final-section-title { font-family: 'Baloo 2', cursive; font-size: 18px; font-weight: 800; color: var(--dark); }
+  .final-section-body { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.6; }
+  .final-pill {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 800;
+    margin: 4px 4px 0 0;
+  }
+  .pill-low { background: var(--mint-light); color: #2A7A67; }
+  .pill-moderate { background: var(--yellow-light); color: #8A6000; }
+  .pill-high { background: #FFE8E8; color: var(--rose); }
+
+  .restart-btn {
+    width: 100%;
+    background: var(--white);
+    color: var(--rose);
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 16px;
+    border: 2.5px solid var(--rose);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 16px;
+    min-height: 56px;
+  }
+  .restart-btn:hover { background: var(--rose); color: white; }
+
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--dark);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--peach-light); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SCREEN 1: WELCOME -->
+  <div id="screen-welcome" class="screen active">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <span class="welcome-flower">🌸</span>
+    <div class="welcome-title">PCOSense</div>
+    <div class="welcome-tagline">Your friendly guide to understanding your body</div>
+    <div class="lang-label">Choose your language</div>
+    <div class="lang-grid">
+      <button class="lang-btn selected" data-lang="en" onclick="selectLang(this)">English</button>
+      <button class="lang-btn" data-lang="hi" onclick="selectLang(this)">हिंदी</button>
+      <button class="lang-btn" data-lang="bn" onclick="selectLang(this)">বাংলা</button>
+      <button class="lang-btn" data-lang="ta" onclick="selectLang(this)">தமிழ்</button>
+    </div>
+    <button type="button" class="btn-primary" onclick="goTo('screen-intro')">Let's begin</button>
+  </div>
+
+  <!-- SCREEN 2: INTRODUCTION -->
+  <div id="screen-intro" class="screen">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <button class="header-back" style="position:absolute; top:18px; left:18px; z-index:20;" onclick="navigateBack()">←</button>
+    <div class="welcome-title" style="font-size:34px; margin-bottom:18px; color:white; margin-top:60px;">Check your PCOS risk in 2 minutes</div>
+    <div class="welcome-tagline" style="margin-bottom:32px; color:rgba(255,255,255,0.92);">Answer 8 simple questions about your health. Your answers are private and safe.</div>
+    <div class="lang-grid" style="max-width:320px; gap:12px; margin-bottom:32px;">
+      <div class="intro-card">Private • Simple</div>
+      <div class="intro-card">2 minutes</div>
+    </div>
+    <button type="button" class="btn-primary" onclick="goTo('screen-symptoms')">START →</button>
+  </div>
+
+  <!-- SCREEN 3: SYMPTOM QUESTIONS -->
+  <div id="screen-symptoms" class="screen">
+    <div class="header-bar">
+      <button class="header-back" onclick="navigateBack()">←</button>
+      <div class="header-title">Health Check</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-text" id="sym-progress-text">Question 1 of 8</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="sym-progress-fill" style="width:12.5%"></div></div>
+    </div>
+    <div class="q-scroll-area" id="sym-questions-area"></div>
+    <div class="floating-btn-wrap">
+      <button class="btn-next" id="btn-sym-next" onclick="finishSymptoms()">See My Result</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: RISK RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="header-bar">
+      <button class="header-back" onclick="navigateBack()">←</button>
+      <div class="header-title">Your Result</div>
+    </div>
+    <div class="result-body">
+      <div class="result-ring-wrap">
+        <div class="result-ring" id="result-ring">
+          <span class="result-ring-emoji" id="result-emoji"></span>
+          <div class="result-ring-label" id="result-label">Low</div>
+        </div>
+      </div>
+      <div class="result-heading" id="result-heading">You're doing great!</div>
+      <div class="result-subtext" id="result-subtext">Based on your answers, your body is showing mostly healthy signs.</div>
+      <div class="reasons-card">
+        <div class="reasons-title">Symptoms Noticed</div>
+        <div id="reasons-chips"></div>
+      </div>
+      <div class="suggest-card">
+        <div class="reasons-title" style="color:var(--lavender);">Suggestions For You</div>
+        <div id="suggestions-list"></div>
+      </div>
+      <div class="personalize-banner" onclick="goTo('screen-lifestyle')">
+        <div class="pb-text">
+          <div class="pb-title">Want personalized advice?</div>
+          <div class="pb-sub">Tell us about your lifestyle for tips made just for you</div>
+        </div>
+        <span class="pb-arrow">→</span>
+      </div>
+      <div class="skip-link" onclick="goTo('screen-healthcare')">Skip — go to healthcare guidance</div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: LIFESTYLE QUESTIONS -->
+  <div id="screen-lifestyle" class="screen">
+    <div class="header-bar">
+      <button class="header-back" onclick="navigateBack()">←</button>
+      <div class="header-title">Lifestyle</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-text" id="life-progress-text">Question 1 of 5</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="life-progress-fill" style="width:20%;background:linear-gradient(90deg,var(--lavender),var(--blue))"></div></div>
+    </div>
+    <div class="q-scroll-area" id="life-questions-area"></div>
+    <div class="floating-btn-wrap">
+      <button class="btn-next btn-next-lav" id="btn-life-next" onclick="finishLifestyle()">Get Personal Advice</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: PERSONALIZED ADVICE -->
+  <div id="screen-advice" class="screen">
+    <div class="header-bar">
+      <button class="header-back" onclick="navigateBack()">←</button>
+      <div class="header-title">Personal Advice</div>
+    </div>
+    <div class="advice-body" id="advice-body"></div>
+    <div class="floating-btn-wrap">
+      <button class="btn-next btn-next-lav" onclick="goTo('screen-healthcare')">Next: Healthcare Guide</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 7: HEALTHCARE GUIDANCE -->
+  <div id="screen-healthcare" class="screen">
+    <div class="header-bar">
+      <button class="header-back" onclick="navigateBack()">←</button>
+      <div class="header-title">Healthcare Guidance</div>
+    </div>
+    <div class="health-body" id="health-body"></div>
+    <div class="floating-btn-wrap">
+      <button class="btn-next" style="background:linear-gradient(135deg,var(--mint),#3D8C7A);box-shadow:0 6px 24px rgba(91,191,163,0.35);" onclick="goTo('screen-final')">See Full Summary</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 8: FINAL OUTPUT -->
+  <div id="screen-final" class="screen">
+    <div class="header-bar">
+      <button class="header-back" onclick="navigateBack()">←</button>
+      <div class="header-title">Summary</div>
+    </div>
+    <div class="final-body">
+      <div class="final-hero" id="final-hero">
+        <div class="final-hero-risk-icon" id="final-hero-icon"></div>
+        <div class="final-hero-risk-label" id="final-hero-label"></div>
+        <div class="final-hero-sub" id="final-hero-sub">Based on your symptom answers</div>
+      </div>
+      <div class="final-sections" id="final-sections"></div>
+      <div style="padding:0 20px 20px;">
+        <button class="restart-btn" onclick="restartApp()">Start Again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const TRANSLATIONS = {
+  voiceLang: { en:'en-IN', hi:'hi-IN', bn:'bn-IN', ta:'ta-IN' },
+  ui: {
+    en: {
+      appName:'PCOSense', tagline:'Your friendly guide to understanding your body',
+      chooseLang:'Choose your language', letsBegin:"Let's begin",
+      introTitle:'Check your PCOS risk in 2 minutes',
+      introSub:'Answer 8 simple questions about your health. Your answers are private and safe.',
+      introCard1:'Private • Simple', introCard2:'2 minutes', start:'START →',
+      healthCheck:'Health Check',
+      questionOf:(n,t)=>`Question ${n} of ${t}`,
+      answeredOf:(n,t)=>`${n} of ${t} answered`,
+      seeMyResult:'See My Result', yourResult:'Your Result',
+      symptomsNoticed:'Symptoms Noticed', suggestionsForYou:'Suggestions For You',
+      wantPersonalized:'Want personalized advice?',
+      wantPersonalizedSub:'Tell us about your lifestyle for tips made just for you',
+      skipLink:'Skip — go to healthcare guidance',
+      lifestyle:'Lifestyle', getPersonalAdvice:'Get Personal Advice',
+      personalAdvice:'Personal Advice', nextHealthcare:'Next: Healthcare Guide',
+      healthcareGuidance:'Healthcare Guidance', seeFullSummary:'See Full Summary',
+      summary:'Summary', basedOnAnswers:'Based on your symptom answers',
+      startAgain:'Start Again',
+      whatDoesThisMean:'ℹ️ What does this mean?', hideExplanation:'▲ Hide explanation',
+      listen:'Listen', noted:'Noted!', gotIt:'Got it!', saved:'Saved!',
+      yes:'Yes', sometimes:'Sometimes', no:'No',
+      toastNoted:'✅ Noted!', toastGotIt:'🤔 Got it!', toastNo:'❌ Got it!',
+      toastSaved:'Saved! 💜', toastAnswerAll8:'Please answer all 8 questions 💕',
+      toastAnswerAll5:'Please answer all 5 questions 💜',
+      audioNotSupported:'Audio not supported on this browser',
+      noSymptomsNoticed:'✅ No strong symptoms noticed',
+      nationalHelplineTitle:'National Helpline',
+      nationalHelplineDesc:"You can call the National Women's Helpline at 181 for free advice, guidance, and connecting you to local health services. It is free and confidential.",
+      nationalHelplineTip:'🤝 You can also call the ASHA worker in your area — she is your trusted health friend!',
+      whenToDoctorTitle:'When to See a Doctor',
+      whenToDoctorDesc:"See a doctor if you notice: periods missing for 3+ months, very heavy bleeding, severe pain, or sudden changes in your body that worry you. You deserve care!",
+      findDoctorTitle:'Find Doctors Nearby',
+      findDoctorDesc:"Need to find a gynecologist or women's health specialist near you? Click below to search on Google Maps.",
+      findDoctorBtn:'Find Doctors Nearby →',
+      riskLevelTitle:'Risk Level',
+      basedOn:(n)=>`Based on ${n} symptom answers`,
+      personalTips:'Personal Tips', healthcareReminder:'Healthcare Reminder',
+      rememberAlwaysTitle:'Remember Always',
+      rememberAlwaysBody:'You are not alone. Millions of women live healthy, happy lives with PCOS. Knowing your body is the first and most powerful step. Take care of yourself every single day. 🌸',
+    },
+    hi: {
+      appName:'PCOSense', tagline:'आपके शरीर को समझने की आपकी मित्र गाइड',
+      chooseLang:'अपनी भाषा चुनें', letsBegin:'शुरू करें',
+      introTitle:'2 मिनट में अपना PCOS जोखिम जांचें',
+      introSub:'अपने स्वास्थ्य के बारे में 8 सरल सवालों के जवाब दें। आपके जवाब निजी और सुरक्षित हैं।',
+      introCard1:'निजी • सरल', introCard2:'2 मिनट', start:'शुरू करें →',
+      healthCheck:'स्वास्थ्य जाँच',
+      questionOf:(n,t)=>`प्रश्न ${n} / ${t}`,
+      answeredOf:(n,t)=>`${n} में से ${t} उत्तर दिए`,
+      seeMyResult:'मेरा परिणाम देखें', yourResult:'आपका परिणाम',
+      symptomsNoticed:'देखे गए लक्षण', suggestionsForYou:'आपके लिए सुझाव',
+      wantPersonalized:'व्यक्तिगत सलाह चाहिए?',
+      wantPersonalizedSub:'केवल आपके लिए सुझाव पाने के लिए अपनी जीवनशैली बताएं',
+      skipLink:'छोड़ें — स्वास्थ्य सेवा मार्गदर्शन पर जाएं',
+      lifestyle:'जीवनशैली', getPersonalAdvice:'व्यक्तिगत सलाह लें',
+      personalAdvice:'व्यक्तिगत सलाह', nextHealthcare:'अगला: स्वास्थ्य सेवा गाइड',
+      healthcareGuidance:'स्वास्थ्य सेवा मार्गदर्शन', seeFullSummary:'पूरा सारांश देखें',
+      summary:'सारांश', basedOnAnswers:'आपके लक्षण उत्तरों के आधार पर',
+      startAgain:'फिर से शुरू करें',
+      whatDoesThisMean:'ℹ️ इसका क्या मतलब है?', hideExplanation:'▲ व्याख्या छुपाएं',
+      listen:'सुनें', noted:'नोट किया!', gotIt:'समझ गए!', saved:'सहेजा गया!',
+      yes:'हाँ', sometimes:'कभी-कभी', no:'नहीं',
+      toastNoted:'✅ नोट किया!', toastGotIt:'🤔 समझ गए!', toastNo:'❌ समझ गए!',
+      toastSaved:'सहेजा गया! 💜', toastAnswerAll8:'कृपया सभी 8 प्रश्नों का उत्तर दें 💕',
+      toastAnswerAll5:'कृपया सभी 5 प्रश्नों का उत्तर दें 💜',
+      audioNotSupported:'यह ब्राउज़र ऑडियो का समर्थन नहीं करता',
+      noSymptomsNoticed:'✅ कोई मुख्य लक्षण नहीं दिखे',
+      nationalHelplineTitle:'राष्ट्रीय हेल्पलाइन',
+      nationalHelplineDesc:'आप मुफ़्त सलाह और स्थानीय स्वास्थ्य सेवाओं से जुड़ने के लिए राष्ट्रीय महिला हेल्पलाइन 181 पर कॉल कर सकती हैं। यह मुफ़्त और गोपनीय है।',
+      nationalHelplineTip:'🤝 आप अपने क्षेत्र की ASHA कार्यकर्ता से भी मिल सकती हैं — वह आपकी विश्वसनीय स्वास्थ्य मित्र हैं!',
+      whenToDoctorTitle:'डॉक्टर कब दिखाएं',
+      whenToDoctorDesc:'यदि आप देखें: 3+ महीने से माहवारी नहीं आई, बहुत भारी रक्तस्राव, गंभीर दर्द, या शरीर में अचानक बदलाव — तो डॉक्टर से मिलें। आप देखभाल की हकदार हैं!',
+      findDoctorTitle:'पास में डॉक्टर खोजें',
+      findDoctorDesc:'क्या आपको पास में स्त्री रोग विशेषज्ञ ढूंढने की ज़रूरत है? Google Maps पर खोजने के लिए नीचे क्लिक करें।',
+      findDoctorBtn:'पास में डॉक्टर खोजें →',
+      riskLevelTitle:'जोखिम स्तर',
+      basedOn:(n)=>`${n} लक्षण उत्तरों के आधार पर`,
+      personalTips:'व्यक्तिगत सुझाव', healthcareReminder:'स्वास्थ्य सेवा अनुस्मारक',
+      rememberAlwaysTitle:'हमेशा याद रखें',
+      rememberAlwaysBody:'आप अकेली नहीं हैं। लाखों महिलाएं PCOS के साथ स्वस्थ, खुशहाल जीवन जीती हैं। अपने शरीर को जानना पहला और सबसे शक्तिशाली कदम है। हर दिन अपना ख्याल रखें। 🌸',
+    },
+    bn: {
+      appName:'PCOSense', tagline:'আপনার শরীর বোঝার বন্ধুত্বপূর্ণ গাইড',
+      chooseLang:'আপনার ভাষা বেছে নিন', letsBegin:'শুরু করি',
+      introTitle:'২ মিনিটে আপনার PCOS ঝুঁকি পরীক্ষা করুন',
+      introSub:'আপনার স্বাস্থ্য সম্পর্কে ৮টি সহজ প্রশ্নের উত্তর দিন। আপনার উত্তর গোপন ও নিরাপদ।',
+      introCard1:'গোপনীয় • সহজ', introCard2:'২ মিনিট', start:'শুরু করুন →',
+      healthCheck:'স্বাস্থ্য পরীক্ষা',
+      questionOf:(n,t)=>`প্রশ্ন ${n} / ${t}`,
+      answeredOf:(n,t)=>`${t} টির মধ্যে ${n} টি উত্তর দেওয়া হয়েছে`,
+      seeMyResult:'আমার ফলাফল দেখুন', yourResult:'আপনার ফলাফল',
+      symptomsNoticed:'লক্ষণ পাওয়া গেছে', suggestionsForYou:'আপনার জন্য পরামর্শ',
+      wantPersonalized:'ব্যক্তিগত পরামর্শ চান?',
+      wantPersonalizedSub:'শুধু আপনার জন্য টিপস পেতে আপনার জীবনযাত্রা সম্পর্কে বলুন',
+      skipLink:'এড়িয়ে যান — স্বাস্থ্যসেবা গাইডে যান',
+      lifestyle:'জীবনধারা', getPersonalAdvice:'ব্যক্তিগত পরামর্শ নিন',
+      personalAdvice:'ব্যক্তিগত পরামর্শ', nextHealthcare:'পরবর্তী: স্বাস্থ্যসেবা গাইড',
+      healthcareGuidance:'স্বাস্থ্যসেবা নির্দেশনা', seeFullSummary:'সম্পূর্ণ সারসংক্ষেপ দেখুন',
+      summary:'সারসংক্ষেপ', basedOnAnswers:'আপনার উপসর্গের উত্তরের ভিত্তিতে',
+      startAgain:'আবার শুরু করুন',
+      whatDoesThisMean:'ℹ️ এর মানে কী?', hideExplanation:'▲ ব্যাখ্যা লুকান',
+      listen:'শুনুন', noted:'নোট করা হয়েছে!', gotIt:'বোঝা গেছে!', saved:'সংরক্ষিত হয়েছে!',
+      yes:'হ্যাঁ', sometimes:'কখনো কখনো', no:'না',
+      toastNoted:'✅ নোট করা হয়েছে!', toastGotIt:'🤔 বোঝা গেছে!', toastNo:'❌ বোঝা গেছে!',
+      toastSaved:'সংরক্ষিত হয়েছে! 💜', toastAnswerAll8:'অনুগ্রহ করে সব ৮টি প্রশ্নের উত্তর দিন 💕',
+      toastAnswerAll5:'অনুগ্রহ করে সব ৫টি প্রশ্নের উত্তর দিন 💜',
+      audioNotSupported:'এই ব্রাউজার অডিও সমর্থন করে না',
+      noSymptomsNoticed:'✅ কোনো গুরুত্বপূর্ণ লক্ষণ দেখা যায়নি',
+      nationalHelplineTitle:'জাতীয় হেল্পলাইন',
+      nationalHelplineDesc:'বিনামূল্যে পরামর্শ ও স্থানীয় স্বাস্থ্যসেবার জন্য জাতীয় মহিলা হেল্পলাইন ১৮১ নম্বরে ফোন করতে পারেন। এটি বিনামূল্যে এবং গোপনীয়।',
+      nationalHelplineTip:'🤝 আপনার এলাকার ASHA কর্মীকেও ডাকতে পারেন — তিনি আপনার বিশ্বস্ত স্বাস্থ্য বন্ধু!',
+      whenToDoctorTitle:'কখন ডাক্তার দেখাবেন',
+      whenToDoctorDesc:'যদি দেখেন: ৩+ মাস মাসিক হয়নি, অতিরিক্ত রক্তপাত, তীব্র ব্যথা, বা শরীরে হঠাৎ পরিবর্তন — তাহলে ডাক্তার দেখান। আপনি যত্নের যোগ্য!',
+      findDoctorTitle:'কাছের ডাক্তার খুঁজুন',
+      findDoctorDesc:'কাছে স্ত্রীরোগ বিশেষজ্ঞ খুঁজছেন? Google Maps-এ খুঁজতে নিচে ক্লিক করুন।',
+      findDoctorBtn:'কাছের ডাক্তার খুঁজুন →',
+      riskLevelTitle:'ঝুঁকির মাত্রা',
+      basedOn:(n)=>`${n}টি উপসর্গের উত্তরের ভিত্তিতে`,
+      personalTips:'ব্যক্তিগত পরামর্শ', healthcareReminder:'স্বাস্থ্যসেবা অনুস্মারক',
+      rememberAlwaysTitle:'সবসময় মনে রাখবেন',
+      rememberAlwaysBody:'আপনি একা নন। লক্ষ লক্ষ নারী PCOS নিয়ে সুস্থ ও সুখী জীবন কাটাচ্ছেন। নিজের শরীর জানা প্রথম এবং সবচেয়ে শক্তিশালী পদক্ষেপ। প্রতিদিন নিজের যত্ন নিন। 🌸',
+    },
+    ta: {
+      appName:'PCOSense', tagline:'உங்கள் உடலை புரிந்துகொள்ள உதவும் நண்பர்',
+      chooseLang:'உங்கள் மொழியை தேர்வு செய்யுங்கள்', letsBegin:'தொடங்குவோம்',
+      introTitle:'2 நிமிடத்தில் உங்கள் PCOS அபாயத்தை சரிபாருங்கள்',
+      introSub:'உங்கள் உடல்நலம் குறித்த 8 எளிய கேள்விகளுக்கு பதிலளியுங்கள். உங்கள் பதில்கள் தனிப்பட்டவை மற்றும் பாதுகாப்பானவை.',
+      introCard1:'தனிப்பட்ட • எளிமையான', introCard2:'2 நிமிடம்', start:'தொடங்கு →',
+      healthCheck:'உடல்நல சோதனை',
+      questionOf:(n,t)=>`கேள்வி ${n} / ${t}`,
+      answeredOf:(n,t)=>`${t} இல் ${n} பதிலளிக்கப்பட்டது`,
+      seeMyResult:'என் முடிவை பாருங்கள்', yourResult:'உங்கள் முடிவு',
+      symptomsNoticed:'கவனிக்கப்பட்ட அறிகுறிகள்', suggestionsForYou:'உங்களுக்கான பரிந்துரைகள்',
+      wantPersonalized:'தனிப்பயனாக்கப்பட்ட ஆலோசனை வேண்டுமா?',
+      wantPersonalizedSub:'உங்களுக்கே உரிய குறிப்புகளுக்கு உங்கள் வாழ்க்கை முறை சொல்லுங்கள்',
+      skipLink:'தவிர்க்கவும் — சுகாதார வழிகாட்டுதலுக்கு செல்லவும்',
+      lifestyle:'வாழ்க்கை முறை', getPersonalAdvice:'தனிப்பட்ட ஆலோசனை பெறுங்கள்',
+      personalAdvice:'தனிப்பட்ட ஆலோசனை', nextHealthcare:'அடுத்து: சுகாதார வழிகாட்டி',
+      healthcareGuidance:'சுகாதார வழிகாட்டுதல்', seeFullSummary:'முழு சுருக்கம் பாருங்கள்',
+      summary:'சுருக்கம்', basedOnAnswers:'உங்கள் அறிகுறி பதில்களின் அடிப்படையில்',
+      startAgain:'மீண்டும் தொடங்குங்கள்',
+      whatDoesThisMean:'ℹ️ இதன் பொருள் என்ன?', hideExplanation:'▲ விளக்கம் மறை',
+      listen:'விடியுங்கள்', noted:'குறிப்பிட்டது!', gotIt:'புரிந்தது!', saved:'சேமிக்கப்பட்டது!',
+      yes:'ஆம்', sometimes:'சில நேரம்', no:'இல்லை',
+      toastNoted:'✅ குறிப்பிடப்பட்டது!', toastGotIt:'🤔 புரிந்தது!', toastNo:'❌ புரிந்தது!',
+      toastSaved:'சேமிக்கப்பட்டது! 💜', toastAnswerAll8:'தயவுசெய்து 8 கேள்விகளுக்கும் பதிலளியுங்கள் 💕',
+      toastAnswerAll5:'தயவுசெய்து 5 கேள்விகளுக்கும் பதிலளியுங்கள் 💜',
+      audioNotSupported:'இந்த உலாவி ஒலியை ஆதரிக்கவில்லை',
+      noSymptomsNoticed:'✅ முக்கியமான அறிகுறிகள் எதுவும் இல்லை',
+      nationalHelplineTitle:'தேசிய உதவி எண்',
+      nationalHelplineDesc:'இலவச ஆலோசனை மற்றும் உள்ளூர் சுகாதார சேவைகளுக்கு தேசிய மகளிர் உதவி எண் 181 அழைக்கலாம். இது இலவசம் மற்றும் இரகசியமானது.',
+      nationalHelplineTip:'🤝 உங்கள் பகுதியில் உள்ள ASHA பணியாளரையும் அழைக்கலாம் — அவர் உங்கள் நம்பகமான சுகாதார நண்பர்!',
+      whenToDoctorTitle:'எப்போது மருத்துவரை பார்க்கவேண்டும்',
+      whenToDoctorDesc:'3+ மாதங்கள் மாதவிடாய் இல்லை, அதிக இரத்தப்போக்கு, கடுமையான வலி, அல்லது திடீர் உடல் மாற்றம் காணப்பட்டால் மருத்துவரை சந்தியுங்கள். நீங்கள் அரவணைப்புக்கு தகுதியானவர்!',
+      findDoctorTitle:'அருகில் மருத்துவர் தேடுங்கள்',
+      findDoctorDesc:'அருகில் பெண் நல மருத்துவர் தேடுகிறீர்களா? Google Maps இல் தேட கீழே க்ளிக் செய்யுங்கள்.',
+      findDoctorBtn:'அருகில் மருத்துவர் தேடுங்கள் →',
+      riskLevelTitle:'அபாய அளவு',
+      basedOn:(n)=>`${n} அறிகுறி பதில்களின் அடிப்படையில்`,
+      personalTips:'தனிப்பட்ட குறிப்புகள்', healthcareReminder:'சுகாதார நினைவூட்டல்',
+      rememberAlwaysTitle:'எப்போதும் நினைவில் கொள்ளுங்கள்',
+      rememberAlwaysBody:'நீங்கள் தனியல்ல. மில்லியன் கணக்கான பெண்கள் PCOS உடன் ஆரோக்கியமான, மகிழ்ச்சியான வாழ்க்கை வாழ்கிறார்கள். உங்கள் உடலை அறிவது முதல் மற்றும் சக்திவாய்ந்த படி. தினமும் உங்களை கவனித்துக்கொள்ளுங்கள். 🌸',
+    },
+  },
+
+  symptomQs: {
+    en: [
+      { id:'s1', q:'Are your periods regular each month?', exp:"Usually, a woman's cycle comes around the same time every month. This just means checking if your dates are changing a lot, or if a month gets skipped.", icon:'🗓️' },
+      { id:'s2', q:'Have you noticed extra hair growth on your face or body?', exp:'Sometimes, internal changes can cause new, slightly thicker hair to grow on places like the face, chin, or tummy. It is very normal to check for this.', icon:'🌿' },
+      { id:'s3', q:'Do you notice dark patches on your neck, underarms, or inner thighs?', exp:'This just means noticing if the skin around your neck or underarms has started looking a little darker or feeling thicker than the rest of your body.', icon:'🌙' },
+      { id:'s4', q:'Have you gained weight recently without eating more?', exp:'Sometimes our body feels heavier or gains weight quickly, even if we are eating the exact same daily food and doing our usual household work.', icon:'⚖️' },
+      { id:'s5', q:'Do you get frequent acne or pimples?', exp:'This refers to getting small bumps or pimples on the face or back that keep coming back, even when you are keeping your skin perfectly clean.', icon:'✨' },
+      { id:'s6', q:'Do your periods cause severe pain affecting your daily work?', exp:'This means experiencing pain in your lower stomach or back that is so strong it forces you to rest, making it very difficult or impossible to do your daily chores or go to work.', icon:'💪' },
+      { id:'s7', q:'Do you feel tired even after resting?', exp:'This means feeling a heavy tiredness or lack of strength to do your daily work, even after you have had a full, good night of sleep.', icon:'😴' },
+      { id:'s8', q:'Do you often feel strong cravings for sweet foods?', exp:'This is when your body suddenly makes you feel like you really need to eat sweet things, like extra sugar in your tea or sweet snacks, very often.', icon:'🍬' },
+    ],
+    hi: [
+      { id:'s1', q:'क्या आपकी माहवारी हर महीने नियमित आती है?', exp:'आमतौर पर, महिला का चक्र हर महीने लगभग एक ही समय पर आता है।', icon:'🗓️' },
+      { id:'s2', q:'क्या आपने अपने चेहरे या शरीर पर अतिरिक्त बाल उगते देखे हैं?', exp:'कभी-कभी, शरीर के अंदर बदलाव के कारण चेहरे, ठुड्डी या पेट पर थोड़े मोटे नए बाल उग सकते हैं।', icon:'🌿' },
+      { id:'s3', q:'क्या आपको गर्दन, बगल या जांघों पर काले धब्बे दिखते हैं?', exp:'इसका मतलब है यह देखना कि क्या आपकी गर्दन या बगल के आसपास की त्वचा थोड़ी गहरी या मोटी दिखने लगी है।', icon:'🌙' },
+      { id:'s4', q:'क्या आपका वजन बिना अधिक खाए हाल ही में बढ़ा है?', exp:'कभी-कभी हमारा शरीर भारी महसूस होता है या वजन जल्दी बढ़ता है, भले ही हम उतना ही खाना खा रहे हों।', icon:'⚖️' },
+      { id:'s5', q:'क्या आपको बार-बार मुहांसे या फुंसियाँ होती हैं?', exp:'यह उन छोटे दानों या मुहांसों को संदर्भित करता है जो चेहरे या पीठ पर बार-बार आते हैं।', icon:'✨' },
+      { id:'s6', q:'क्या माहवारी में इतना दर्द होता है कि रोज़ का काम प्रभावित हो?', exp:'यानी पेट के नीचे या पीठ में इतना तेज़ दर्द होना कि आराम करना पड़े।', icon:'💪' },
+      { id:'s7', q:'क्या आराम करने के बाद भी थकान महसूस होती है?', exp:'यानी एक भारी थकान या ताकत की कमी महसूस होना, भले ही आप पूरी रात अच्छी नींद ले चुकी हों।', icon:'😴' },
+      { id:'s8', q:'क्या आपको अक्सर मीठे की तेज़ इच्छा होती है?', exp:'यह तब होता है जब आपका शरीर अचानक आपको बहुत मीठा खाने के लिए मजबूर करता है।', icon:'🍬' },
+    ],
+    bn: [
+      { id:'s1', q:'প্রতি মাসে আপনার মাসিক কি নিয়মিত হয়?', exp:'সাধারণত, একজন মহিলার চক্র প্রতি মাসে প্রায় একই সময়ে আসে।', icon:'🗓️' },
+      { id:'s2', q:'আপনার মুখ বা শরীরে কি অতিরিক্ত লোম গজাতে দেখেছেন?', exp:'কখনও কখনও, শরীরের ভেতরে পরিবর্তনের কারণে মুখ, থুতনি বা পেটে নতুন লোম গজাতে পারে।', icon:'🌿' },
+      { id:'s3', q:'আপনার ঘাড়, বগল বা ভেতরের উরুতে কি কালো দাগ দেখেন?', exp:'এর মানে হল আপনার ঘাড় বা বগলের কাছের ত্বক একটু গাঢ় বা মোটা দেখাচ্ছে কিনা তা লক্ষ্য করা।', icon:'🌙' },
+      { id:'s4', q:'বেশি না খেয়েও কি সম্প্রতি ওজন বেড়েছে?', exp:'কখনো কখনো আমাদের শরীর ভারী মনে হয় বা ওজন দ্রুত বাড়ে।', icon:'⚖️' },
+      { id:'s5', q:'আপনার কি ঘন ঘন ব্রণ বা ফুসকুড়ি হয়?', exp:'এটি মুখ বা পিঠে ছোট দানা বা ব্রণ বারবার আসার বিষয়ে।', icon:'✨' },
+      { id:'s6', q:'আপনার মাসিকে কি এত তীব্র ব্যথা হয় যা দৈনন্দিন কাজে বাধা দেয়?', exp:'এর মানে তলপেট বা পিঠে এত তীব্র ব্যথা যে বিশ্রাম নিতে হয়।', icon:'💪' },
+      { id:'s7', q:'বিশ্রাম নেওয়ার পরেও কি ক্লান্তি লাগে?', exp:'এর মানে একটি ভারী ক্লান্তি বা দৈনন্দিন কাজ করার শক্তির অভাব অনুভব করা।', icon:'😴' },
+      { id:'s8', q:'আপনার কি প্রায়ই মিষ্টি খাবারের তীব্র ইচ্ছা হয়?', exp:'এটি হল যখন আপনার শরীর হঠাৎ আপনাকে মিষ্টি জিনিস খেতে বাধ্য করে।', icon:'🍬' },
+    ],
+    ta: [
+      { id:'s1', q:'உங்கள் மாதவிடாய் ஒவ்வொரு மாதமும் சீராக வருகிறதா?', exp:'பொதுவாக, ஒரு பெண்ணின் சுழற்சி ஒவ்வொரு மாதமும் ஒரே நேரத்தில் வரும்.', icon:'🗓️' },
+      { id:'s2', q:'உங்கள் முகம் அல்லது உடலில் அதிக முடி வளர்ச்சியை கவனித்தீர்களா?', exp:'சில நேரங்களில், உடல் மாற்றங்கள் முகம், கன்னம் அல்லது வயிற்றில் புதிய முடி வளர காரணமாகலாம்.', icon:'🌿' },
+      { id:'s3', q:'கழுத்து, அக்குள் அல்லது தொடையில் கருமையான திட்டுகள் தெரிகிறதா?', exp:'கழுத்து அல்லது அக்குள் அருகில் தோல் சற்று கருமையாகவோ அல்லது தடிமனாகவோ தெரிகிறதா என்பதை கவனிக்கவும்.', icon:'🌙' },
+      { id:'s4', q:'அதிகமாக சாப்பிடாமலேயே சமீபத்தில் எடை கூடியதா?', exp:'சில நேரங்களில் நாம் அதே அளவு உணவு சாப்பிட்டாலும் உடல் கனமாக தோன்றும்.', icon:'⚖️' },
+      { id:'s5', q:'உங்களுக்கு அடிக்கடி முகப்பரு வருகிறதா?', exp:'முகம் அல்லது முதுகில் சின்னச்சின்ன கட்டிகள் அல்லது பருக்கள் திரும்பத்திரும்ப வருவது.', icon:'✨' },
+      { id:'s6', q:'மாதவிடாயில் தினசரி வேலையை பாதிக்கும் அளவிற்கு கடுமையான வலி இருக்கிறதா?', exp:'அடி வயிறு அல்லது முதுகில் மிகவும் கடுமையான வலி ஏற்படுவது.', icon:'💪' },
+      { id:'s7', q:'ஓய்வெடுத்த பிறகும் களைப்பு உணர்கிறீர்களா?', exp:'நல்ல தூக்கம் தூங்கிய பிறகும் கூட தினசரி வேலை செய்ய ஆற்றல் இல்லாமல் களைப்பு உணர்வது.', icon:'😴' },
+      { id:'s8', q:'இனிப்பான உணவுகளை சாப்பிட அடிக்கடி தீவிரமான ஆசை ஏற்படுகிறதா?', exp:'இது உங்கள் உடல் திடீரென்று இனிப்பான பொருட்களை சாப்பிட வேண்டும் என்று உணர வைக்கும்போது.', icon:'🍬' },
+    ],
+  },
+
+  lifestyleQs: {
+    en: [
+      { id:'l1', q:'How much physical work do you do every day?', icon:'🏃',
+        opts:[
+          { icon:'💺', label:'Mostly sitting work (tailoring, shop, or resting)', val:'sitting' },
+          { icon:'🧹', label:'Normal household work (cooking, sweeping, washing)', val:'moderate' },
+          { icon:'🌾', label:'Heavy hard work (farming, labor, long distances)', val:'heavy' },
+        ]},
+      { id:'l2', q:'What do your daily meals usually look like?', icon:'🍽️',
+        opts:[
+          { icon:'🥗', label:'A healthy mix of roti/rice with dal and green vegetables', val:'healthy' },
+          { icon:'🍚', label:'Mostly a large amount of rice/roti, with little dal or vegetables', val:'carbs' },
+          { icon:'🍟', label:'A lot of oily food, packaged snacks, or sweets', val:'oily' },
+        ]},
+      { id:'l3', q:'How much plain water do you drink in a whole day?', icon:'💧',
+        opts:[
+          { icon:'😰', label:'Very little (only 2 or 3 glasses a day)', val:'low' },
+          { icon:'🙂', label:'A medium amount (around 4 to 5 glasses)', val:'medium' },
+          { icon:'💪', label:'Plenty of water (6 to 8 glasses or more)', val:'plenty' },
+        ]},
+      { id:'l4', q:'How well do you usually sleep at night?', icon:'🌙',
+        opts:[
+          { icon:'😌', label:'I sleep peacefully through the whole night', val:'good' },
+          { icon:'😟', label:'My sleep breaks often, and I wake up in the middle of the night', val:'broken' },
+          { icon:'😩', label:'I hardly sleep (less than 6 hours)', val:'poor' },
+        ]},
+      { id:'l5', q:'If you need to see a doctor, how easy is it to go?', icon:'🏥',
+        opts:[
+          { icon:'🚶', label:'Very easy (the clinic is nearby or I can walk)', val:'easy' },
+          { icon:'🚌', label:'A little far (I need to take a bus, toto, or auto)', val:'medium' },
+          { icon:'😔', label:'Very far and difficult to reach', val:'hard' },
+        ]},
+    ],
+    hi: [
+      { id:'l1', q:'आप रोज़ कितना शारीरिक काम करती हैं?', icon:'🏃',
+        opts:[
+          { icon:'💺', label:'ज़्यादातर बैठकर काम (सिलाई, दुकान, या आराम)', val:'sitting' },
+          { icon:'🧹', label:'सामान्य घर का काम (खाना बनाना, झाड़ू-पोछा, कपड़े धोना)', val:'moderate' },
+          { icon:'🌾', label:'भारी मेहनत का काम (खेती, मज़दूरी, लंबी दूरी)', val:'heavy' },
+        ]},
+      { id:'l2', q:'आपके रोज़ के खाने में आमतौर पर क्या होता है?', icon:'🍽️',
+        opts:[
+          { icon:'🥗', label:'रोटी/चावल के साथ दाल और हरी सब्ज़ियों का संतुलित मिश्रण', val:'healthy' },
+          { icon:'🍚', label:'ज़्यादातर ढेर सारा चावल/रोटी, कम दाल या सब्ज़ी', val:'carbs' },
+          { icon:'🍟', label:'बहुत तेलीय खाना, पैकेट बंद नाश्ता, या मिठाई', val:'oily' },
+        ]},
+      { id:'l3', q:'आप पूरे दिन में कितना सादा पानी पीती हैं?', icon:'💧',
+        opts:[
+          { icon:'😰', label:'बहुत कम (दिन में सिर्फ 2-3 गिलास)', val:'low' },
+          { icon:'🙂', label:'मध्यम मात्रा (लगभग 4-5 गिलास)', val:'medium' },
+          { icon:'💪', label:'भरपूर पानी (6-8 गिलास या अधिक)', val:'plenty' },
+        ]},
+      { id:'l4', q:'आप रात में आमतौर पर कैसे सोती हैं?', icon:'🌙',
+        opts:[
+          { icon:'😌', label:'मैं पूरी रात चैन से सोती हूँ', val:'good' },
+          { icon:'😟', label:'मेरी नींद अक्सर टूट जाती है, मैं बीच रात में जागती हूँ', val:'broken' },
+          { icon:'😩', label:'मैं बहुत कम सोती हूँ (6 घंटे से कम)', val:'poor' },
+        ]},
+      { id:'l5', q:'अगर डॉक्टर के पास जाना हो तो कितना आसान है?', icon:'🏥',
+        opts:[
+          { icon:'🚶', label:'बहुत आसान (क्लीनिक पास है या पैदल जा सकती हूँ)', val:'easy' },
+          { icon:'🚌', label:'थोड़ा दूर (बस, टोटो या ऑटो लेना पड़ता है)', val:'medium' },
+          { icon:'😔', label:'बहुत दूर और पहुंचना मुश्किल है', val:'hard' },
+        ]},
+    ],
+    bn: [
+      { id:'l1', q:'আপনি প্রতিদিন কতটা শারীরিক পরিশ্রম করেন?', icon:'🏃',
+        opts:[
+          { icon:'💺', label:'বেশিরভাগ বসে কাজ (সেলাই, দোকান, বা বিশ্রাম)', val:'sitting' },
+          { icon:'🧹', label:'স্বাভাবিক ঘরের কাজ (রান্না, ঝাড়ু, কাপড় ধোয়া)', val:'moderate' },
+          { icon:'🌾', label:'ভারী পরিশ্রমের কাজ (চাষ, শ্রম, দীর্ঘ পথ)', val:'heavy' },
+        ]},
+      { id:'l2', q:'আপনার প্রতিদিনের খাবার সাধারণত কেমন হয়?', icon:'🍽️',
+        opts:[
+          { icon:'🥗', label:'রুটি/ভাতের সাথে ডাল ও সবুজ সবজির সুষম মিশ্রণ', val:'healthy' },
+          { icon:'🍚', label:'বেশিরভাগ প্রচুর ভাত/রুটি, কম ডাল বা সবজি', val:'carbs' },
+          { icon:'🍟', label:'প্রচুর তৈলাক্ত খাবার, প্যাকেট স্ন্যাকস, বা মিষ্টি', val:'oily' },
+        ]},
+      { id:'l3', q:'আপনি সারাদিন কতটুকু সাধারণ পানি পান করেন?', icon:'💧',
+        opts:[
+          { icon:'😰', label:'খুব কম (দিনে মাত্র ২-৩ গ্লাস)', val:'low' },
+          { icon:'🙂', label:'মাঝারি পরিমাণ (প্রায় ৪-৫ গ্লাস)', val:'medium' },
+          { icon:'💪', label:'প্রচুর পানি (৬-৮ গ্লাস বা বেশি)', val:'plenty' },
+        ]},
+      { id:'l4', q:'আপনি রাতে সাধারণত কেমন ঘুমান?', icon:'🌙',
+        opts:[
+          { icon:'😌', label:'আমি সারারাত শান্তিতে ঘুমাই', val:'good' },
+          { icon:'😟', label:'আমার ঘুম প্রায়ই ভেঙে যায়, রাতের মাঝে জেগে উঠি', val:'broken' },
+          { icon:'😩', label:'আমি খুব কম ঘুমাই (৬ ঘন্টার কম)', val:'poor' },
+        ]},
+      { id:'l5', q:'ডাক্তারের কাছে যেতে কতটা সহজ?', icon:'🏥',
+        opts:[
+          { icon:'🚶', label:'খুব সহজ (ক্লিনিক কাছে বা হেঁটে যাওয়া যায়)', val:'easy' },
+          { icon:'🚌', label:'একটু দূরে (বাস, টোটো বা অটো লাগে)', val:'medium' },
+          { icon:'😔', label:'অনেক দূরে এবং যাওয়া কঠিন', val:'hard' },
+        ]},
+    ],
+    ta: [
+      { id:'l1', q:'நீங்கள் தினமும் எவ்வளவு உடல் உழைப்பு செய்கிறீர்கள்?', icon:'🏃',
+        opts:[
+          { icon:'💺', label:'பெரும்பாலும் உட்கார்ந்து வேலை (தையல், கடை, ஓய்வு)', val:'sitting' },
+          { icon:'🧹', label:'சாதாரண வீட்டு வேலை (சமையல், துடைத்தல், துவைத்தல்)', val:'moderate' },
+          { icon:'🌾', label:'கடினமான உடல் உழைப்பு (விவசாயம், கூலி வேலை, நீண்ட தூரம்)', val:'heavy' },
+        ]},
+      { id:'l2', q:'உங்கள் தினசரி உணவு பொதுவாக எப்படி இருக்கும்?', icon:'🍽️',
+        opts:[
+          { icon:'🥗', label:'ரொட்டி/சோற்றுடன் பருப்பு மற்றும் கீரை கலந்த சீரான உணவு', val:'healthy' },
+          { icon:'🍚', label:'பெரும்பாலும் நிறைய சோறு/ரொட்டி, கொஞ்சம் பருப்பு அல்லது காய்கறி', val:'carbs' },
+          { icon:'🍟', label:'நிறைய எண்ணெய் உணவு, பாக்கெட் தின்பண்டங்கள் அல்லது இனிப்பு', val:'oily' },
+        ]},
+      { id:'l3', q:'நீங்கள் ஒரு நாளில் எவ்வளவு தண்ணீர் குடிக்கிறீர்கள்?', icon:'💧',
+        opts:[
+          { icon:'😰', label:'மிகவும் குறைவாக (நாளில் 2 அல்லது 3 கப் மட்டும்)', val:'low' },
+          { icon:'🙂', label:'நடுத்தர அளவு (சுமார் 4 முதல் 5 கப்)', val:'medium' },
+          { icon:'💪', label:'நிறைய தண்ணீர் (6 முதல் 8 கப் அல்லது அதிகம்)', val:'plenty' },
+        ]},
+      { id:'l4', q:'நீங்கள் பொதுவாக இரவில் எப்படி தூங்குவீர்கள்?', icon:'🌙',
+        opts:[
+          { icon:'😌', label:'நான் இரவு முழுவதும் அமைதியாக தூங்குவேன்', val:'good' },
+          { icon:'😟', label:'என் தூக்கம் அடிக்கடி முறிவடைகிறது, நடு இரவில் விழிக்கிறேன்', val:'broken' },
+          { icon:'😩', label:'நான் மிகவும் குறைவாக தூங்குகிறேன் (6 மணி நேரத்திற்கும் குறைவாக)', val:'poor' },
+        ]},
+      { id:'l5', q:'மருத்துவரிடம் செல்வது எவ்வளவு எளிது?', icon:'🏥',
+        opts:[
+          { icon:'🚶', label:'மிகவும் எளிது (மருத்துவமனை அருகில் உள்ளது அல்லது நடக்கலாம்)', val:'easy' },
+          { icon:'🚌', label:'கொஞ்சம் தூரம் (பேருந்து அல்லது ஆட்டோ வேண்டும்)', val:'medium' },
+          { icon:'😔', label:'மிகவும் தூரம் மற்றும் செல்வது கஷ்டம்', val:'hard' },
+        ]},
+    ],
+  },
+
+  results: {
+    en: {
+      low:      { emoji:'🌿', label:'Low Likelihood',      heading:"You're doing great! 🌟", subtext:"Based on your answers, your body is showing mostly healthy signs. Keep taking care of yourself and listen to your body." },
+      moderate: { emoji:'🌼', label:'Moderate',            heading:'A Few Things to Notice 🌼', subtext:"Some of your answers suggest your body may need a little more attention. Don't worry — small changes in daily habits can make a big difference!" },
+      high:     { emoji:'💛', label:'Higher Likelihood',   heading:'Your Body is Asking for Care 💛', subtext:"Your answers suggest it would be a good idea to speak with a doctor. Remember — noticing this early is a powerful step!" },
+    },
+    hi: {
+      low:      { emoji:'🌿', label:'कम संभावना',    heading:'आप बहुत अच्छा कर रही हैं! 🌟', subtext:'आपके जवाबों के आधार पर, आपका शरीर ज़्यादातर स्वस्थ संकेत दिखा रहा है। खुद का ख्याल रखती रहें।' },
+      moderate: { emoji:'🌼', label:'मध्यम',         heading:'कुछ बातों पर ध्यान दें 🌼', subtext:'आपके कुछ जवाब सुझाते हैं कि आपके शरीर को थोड़ा और ध्यान की ज़रूरत हो सकती है।' },
+      high:     { emoji:'💛', label:'अधिक संभावना', heading:'आपका शरीर देखभाल माँग रहा है 💛', subtext:'आपके जवाब सुझाते हैं कि डॉक्टर से बात करना अच्छा होगा।' },
+    },
+    bn: {
+      low:      { emoji:'🌿', label:'কম সম্ভাবনা',   heading:'আপনি খুব ভালো করছেন! 🌟', subtext:'আপনার উত্তরের ভিত্তিতে, আপনার শরীর বেশিরভাগ সুস্থ লক্ষণ দেখাচ্ছে।' },
+      moderate: { emoji:'🌼', label:'মাঝারি',         heading:'কিছু বিষয় লক্ষ্য রাখুন 🌼', subtext:'আপনার কিছু উত্তর বলছে যে শরীরের একটু বেশি মনোযোগ দরকার হতে পারে।' },
+      high:     { emoji:'💛', label:'বেশি সম্ভাবনা', heading:'আপনার শরীর যত্ন চাইছে 💛', subtext:'আপনার উত্তর বলছে একজন ডাক্তারের সাথে কথা বলা ভালো হবে।' },
+    },
+    ta: {
+      low:      { emoji:'🌿', label:'குறைந்த அபாயம்', heading:'நீங்கள் நன்றாக இருக்கிறீர்கள்! 🌟', subtext:'உங்கள் பதில்களின் அடிப்படையில், உங்கள் உடல் பெரும்பாலும் ஆரோக்கியமான அறிகுறிகளை காட்டுகிறது.' },
+      moderate: { emoji:'🌼', label:'நடுத்தர அபாயம்', heading:'சில விஷயங்கள் கவனிக்கவும் 🌼', subtext:'உங்கள் சில பதில்கள் உங்கள் உடலுக்கு கொஞ்சம் கூடுதல் கவனம் தேவைப்படலாம் என்று சொல்கின்றன.' },
+      high:     { emoji:'💛', label:'அதிக அபாயம்',    heading:'உங்கள் உடல் பராமரிப்பு கேட்கிறது 💛', subtext:'உங்கள் பதில்கள் மருத்துவரிடம் பேசுவது நல்லது என்று சூறிக்கிறது.' },
+    },
+  },
+
+  symLabels: {
+    en: { s1:'Irregular periods', s2:'Extra hair growth', s3:'Dark patches', s4:'Weight changes', s5:'Acne/pimples', s6:'Period pain', s7:'Tiredness', s8:'Sweet cravings' },
+    hi: { s1:'अनियमित माहवारी', s2:'अतिरिक्त बाल उगना', s3:'काले धब्बे', s4:'वज़न में बदलाव', s5:'मुहांसे/फुंसियाँ', s6:'माहवारी दर्द', s7:'थकान', s8:'मीठे की इच्छा' },
+    bn: { s1:'অনিয়মিত মাসিক', s2:'অতিরিক্ত লোম গজানো', s3:'কালো দাগ', s4:'ওজনের পরিবর্তন', s5:'ব্রণ/ফুসকুড়ি', s6:'মাসিকের ব্যথা', s7:'ক্লান্তি', s8:'মিষ্টির আকাঙ্ক্ষা' },
+    ta: { s1:'ஒழுங்கற்ற மாதவிடாய்', s2:'அதிக முடி வளர்ச்சி', s3:'கருமையான திட்டுகள்', s4:'எடை மாற்றங்கள்', s5:'முகப்பரு', s6:'மாதவிடாய் வலி', s7:'களைப்பு', s8:'இனிப்பு ஆசை' },
+  },
+
+  suggestions: {
+    en: {
+      low:      ['Keep a simple monthly calendar of your dates','Eat fresh home-cooked food as much as possible','Try to get 7–8 hours of sleep each night'],
+      moderate: ['Note down your period dates each month to track changes','Reduce oily and sweet foods in your daily diet','Try a 10–15 minute walk every day','Visit a doctor or ASHA worker if symptoms continue'],
+      high:     ['Visit a doctor soon — they can do a simple test to check','Speak to your ASHA worker or Anganwadi Didi for help','Reduce packaged snacks and try home-cooked meals','Try gentle walking and drinking more water daily','You are brave for checking — early care makes a big difference'],
+    },
+    hi: {
+      low:      ['हर महीने अपनी माहवारी की तारीखें एक सरल कैलेंडर में नोट करें','जितना हो सके ताज़ा घर का बना खाना खाएं','हर रात 7-8 घंटे की नींद लेने की कोशिश करें'],
+      moderate: ['हर महीने बदलाव ट्रैक करने के लिए माहवारी की तारीखें लिखें','रोज़ के खाने में तेलीय और मीठे खाने को कम करें','हर दिन 10-15 मिनट की सैर करें','यदि लक्षण जारी रहें तो डॉक्टर या ASHA कार्यकर्ता से मिलें'],
+      high:     ['जल्द डॉक्टर से मिलें — वे एक सरल जाँच कर सकते हैं','मदद के लिए ASHA कार्यकर्ता या आंगनवाड़ी दीदी से बात करें','पैकेट बंद स्नैक्स कम करें और घर का खाना खाएं','हल्की सैर और रोज़ अधिक पानी पीने की कोशिश करें','आप बहादुर हैं — जल्दी देखभाल से बड़ा फर्क पड़ता है'],
+    },
+    bn: {
+      low:      ['প্রতি মাসে মাসিকের তারিখ একটি সহজ ক্যালেন্ডারে লিখুন','যতটা সম্ভব তাজা ঘরে রান্না করা খাবার খান','প্রতি রাতে ৭-৮ ঘন্টা ঘুমানোর চেষ্টা করুন'],
+      moderate: ['পরিবর্তন ট্র্যাক করতে প্রতি মাসে মাসিকের তারিখ লিখে রাখুন','দৈনন্দিন খাবারে তৈলাক্ত ও মিষ্টি কমিয়ে দিন','প্রতিদিন ১০-১৫ মিনিট হাঁটার চেষ্টা করুন','লক্ষণ চলতে থাকলে ডাক্তার বা ASHA কর্মীর সাথে দেখা করুন'],
+      high:     ['দ্রুত ডাক্তারের কাছে যান — তারা একটি সহজ পরীক্ষা করতে পারবেন','সাহায্যের জন্য ASHA কর্মী বা অঙ্গনওয়াড়ি দিদির সাথে কথা বলুন','প্যাকেট স্ন্যাকস কমান এবং ঘরে রান্না করা খাবার খান','হালকা হাঁটা এবং প্রতিদিন বেশি পানি পান করার চেষ্টা করুন','আপনি সাহসী — তাড়াতাড়ি যত্ন নিলে অনেক পার্থক্য হয়'],
+    },
+    ta: {
+      low:      ['ஒவ்வொரு மாதமும் மாதவிடாய் தேதிகளை ஒரு எளிய நாட்காட்டியில் குறிக்கவும்','முடிந்தவரை வீட்டில் சமைத்த புதிய உணவு சாப்பிடவும்','ஒவ்வொரு இரவும் 7-8 மணி நேரம் தூங்க முயற்சிக்கவும்'],
+      moderate: ['மாற்றங்களை கண்காணிக்க ஒவ்வொரு மாதமும் மாதவிடாய் தேதிகளை குறித்துக்கொள்ளவும்','தினசரி உணவில் எண்ணெய் மற்றும் இனிப்பு குறைக்கவும்','ஒவ்வொரு நாளும் 10-15 நிமிட நடைப்பயிற்சி செய்யவும்','அறிகுறிகள் தொடர்ந்தால் மருத்துவர் அல்லது ASHA பணியாளரை சந்திக்கவும்'],
+      high:     ['விரைவில் மருத்துவரை சந்தியுங்கள் — அவர்கள் ஒரு எளிய சோதனை செய்யலாம்','உதவிக்கு ASHA பணியாளர் அல்லது அங்கன்வாடி தீதியிடம் பேசுங்கள்','பாக்கெட் தின்பண்டங்களை குறைத்து வீட்டு உணவு சாப்பிடுங்கள்','மெதுவாக நடப்பது மற்றும் தினமும் அதிக தண்ணீர் குடிக்க முயற்சிக்கவும்','நீங்கள் தைரியசாலி — முன்கூட்டிய பராமரிப்பு பெரிய வித்தியாசம் செய்யும்'],
+    },
+  },
+
+  adviceData: {
+    en: {
+      l1: {
+        sitting: { icon:'🚶', topic:'Activity', text:'Since your daily work keeps you seated, try taking a 10-minute walk outside in the morning or evening. Moving your body gently helps keep your energy up!' },
+        moderate:{ icon:'🌟', topic:'Activity', text:'Your daily chores keep you moving, which is great! To feel even stronger, try adding a short, relaxing walk outside when you have some free time.' },
+        heavy:   { icon:'💧', topic:'Activity', text:'You work very hard every day! Make sure to give your body proper rest and drink plenty of water while working to protect your strength.' },
+      },
+      l2: {
+        healthy: { icon:'🥗', topic:'Food', text:'You are doing a wonderful job eating a balanced meal! Keep enjoying your dal and fresh vegetables to give your body good strength and healing.' },
+        carbs:   { icon:'🍽️', topic:'Food', text:'To give your body more power, try adding a little more dal, beans, or fresh green vegetables to your plate along with your rice or roti.' },
+        oily:    { icon:'🍲', topic:'Food', text:'Try to slowly reduce fried foods and sweets. Eating simple, warm, home-cooked food instead will help your body feel much lighter and healthier.' },
+      },
+      l3: {
+        low:    { icon:'💧', topic:'Water', text:'Your body needs more water to wash away tiredness. Try drinking one full glass of plain water right after you wake up, and one before every meal.' },
+        medium: { icon:'🚿', topic:'Water', text:'You are drinking some water, but a little more will help you feel fresh. Try to keep a small jug of water nearby while you work to remind you to drink.' },
+        plenty: { icon:'🌊', topic:'Water', text:'Excellent! Drinking plenty of water is one of the best ways to keep your body clean from the inside. Keep up this good habit!' },
+      },
+      l4: {
+        good:   { icon:'😴', topic:'Sleep', text:'Good sleep is healing! Keep resting well, as this gives your body the power to repair itself and work properly the next day.' },
+        broken: { icon:'🌙', topic:'Sleep', text:'Broken sleep can make you feel weak. Try not to drink tea or use a mobile phone just before bed, so your mind can fully relax.' },
+        poor:   { icon:'🛏️', topic:'Sleep', text:'Your body needs more rest to heal. Try lying down a little earlier, and keep your sleeping area as quiet and comfortable as possible.' },
+      },
+      l5: {
+        easy:   { icon:'🏥', topic:'Healthcare', text:'Since a clinic is close by, please do not hesitate to visit a doctor or nurse if you feel strong pain or notice your dates are skipping.' },
+        medium: { icon:'🤝', topic:'Healthcare', text:'We know the clinic is a bit of a journey, but if you have strong pain, please plan a visit. You can also talk to your local ASHA Didi for advice first.' },
+        hard:   { icon:'🌸', topic:'Healthcare', text:'Since the doctor is far, please speak to your local ASHA worker or Anganwadi Didi first. They can guide you and help arrange the care you need.' },
+      },
+    },
+    hi: {
+      l1: {
+        sitting: { icon:'🚶', topic:'गतिविधि', text:'चूंकि आपका काम बैठकर होता है, सुबह या शाम 10 मिनट बाहर टहलने की कोशिश करें।' },
+        moderate:{ icon:'🌟', topic:'गतिविधि', text:'आपके रोज़ के घर के काम से शरीर हिलता-डुलता रहता है। खाली समय में बाहर थोड़ी आरामदायक सैर करें।' },
+        heavy:   { icon:'💧', topic:'गतिविधि', text:'आप हर दिन बहुत मेहनत करती हैं! शरीर को सही आराम दें और काम के दौरान खूब पानी पिएं।' },
+      },
+      l2: {
+        healthy: { icon:'🥗', topic:'भोजन', text:'आप संतुलित भोजन करके बहुत अच्छा कर रही हैं! दाल और ताज़ी सब्ज़ियों का आनंद लेती रहें।' },
+        carbs:   { icon:'🍽️', topic:'भोजन', text:'शरीर को अधिक ताकत देने के लिए, चावल या रोटी के साथ थोड़ी अधिक दाल, राजमा या ताज़ी हरी सब्ज़ियां जोड़ें।' },
+        oily:    { icon:'🍲', topic:'भोजन', text:'धीरे-धीरे तले हुए खाने और मिठाई को कम करें। सरल, गर्म, घर का बना खाना खाने से शरीर हल्का महसूस करेगा।' },
+      },
+      l3: {
+        low:    { icon:'💧', topic:'पानी', text:'उठने के बाद तुरंत एक पूरा गिलास पानी और हर खाने से पहले एक गिलास पीने की कोशिश करें।' },
+        medium: { icon:'🚿', topic:'पानी', text:'काम करते समय पास में पानी का एक छोटा जग रखें।' },
+        plenty: { icon:'🌊', topic:'पानी', text:'शाबाश! खूब पानी पीना शरीर को अंदर से साफ रखने का सबसे अच्छा तरीका है।' },
+      },
+      l4: {
+        good:   { icon:'😴', topic:'नींद', text:'अच्छी नींद उपचारकारी होती है! अच्छे से आराम करती रहें।' },
+        broken: { icon:'🌙', topic:'नींद', text:'सोने से ठीक पहले चाय न पिएं या मोबाइल का उपयोग न करें।' },
+        poor:   { icon:'🛏️', topic:'नींद', text:'थोड़ा जल्दी लेटने की कोशिश करें और सोने की जगह को शांत और आरामदायक रखें।' },
+      },
+      l5: {
+        easy:   { icon:'🏥', topic:'स्वास्थ्य सेवा', text:'चूंकि क्लीनिक पास है, तेज़ दर्द होने या माहवारी में बदलाव देखने पर डॉक्टर से मिलने में देर न करें।' },
+        medium: { icon:'🤝', topic:'स्वास्थ्य सेवा', text:'तेज़ दर्द हो तो क्लीनिक जाने का प्लान बनाएं। पहले स्थानीय ASHA दीदी से भी सलाह ले सकती हैं।' },
+        hard:   { icon:'🌸', topic:'स्वास्थ्य सेवा', text:'पहले अपनी स्थानीय ASHA कार्यकर्ता या आंगनवाड़ी दीदी से बात करें।' },
+      },
+    },
+    bn: {
+      l1: {
+        sitting: { icon:'🚶', topic:'কার্যকলাপ', text:'সকালে বা বিকেলে ১০ মিনিট বাইরে হাঁটার চেষ্টা করুন।' },
+        moderate:{ icon:'🌟', topic:'কার্যকলাপ', text:'একটু অবসর সময়ে বাইরে আরামদায়ক হাঁটাহাঁটি করুন।' },
+        heavy:   { icon:'💧', topic:'কার্যকলাপ', text:'শরীরকে সঠিক বিশ্রাম দিন এবং কাজের সময় প্রচুর পানি পান করুন।' },
+      },
+      l2: {
+        healthy: { icon:'🥗', topic:'খাদ্য', text:'ডাল ও তাজা সবজি খাওয়া চালিয়ে যান।' },
+        carbs:   { icon:'🍽️', topic:'খাদ্য', text:'ভাত বা রুটির সাথে একটু বেশি ডাল, বিন বা তাজা সবুজ সবজি যোগ করুন।' },
+        oily:    { icon:'🍲', topic:'খাদ্য', text:'সহজ, উষ্ণ, ঘরে রান্না করা খাবার খেলে শরীর অনেক হালকা ও সুস্থ লাগবে।' },
+      },
+      l3: {
+        low:    { icon:'💧', topic:'পানি', text:'ঘুম থেকে উঠেই এক গ্লাস পানি এবং প্রতিটি খাবারের আগে এক গ্লাস পানি পান করুন।' },
+        medium: { icon:'🚿', topic:'পানি', text:'কাজের সময় কাছে ছোট জগ রাখুন।' },
+        plenty: { icon:'🌊', topic:'পানি', text:'চমৎকার! প্রচুর পানি পান শরীরকে ভেতর থেকে পরিষ্কার রাখার সেরা উপায়।' },
+      },
+      l4: {
+        good:   { icon:'😴', topic:'ঘুম', text:'ভালো বিশ্রাম নিতে থাকুন।' },
+        broken: { icon:'🌙', topic:'ঘুম', text:'ঘুমানোর ঠিক আগে চা পান করবেন না বা মোবাইল ব্যবহার করবেন না।' },
+        poor:   { icon:'🛏️', topic:'ঘুম', text:'একটু আগে শুয়ে পড়ার চেষ্টা করুন।' },
+      },
+      l5: {
+        easy:   { icon:'🏥', topic:'স্বাস্থ্যসেবা', text:'তীব্র ব্যথা বা মাসিকের পরিবর্তন দেখলে দ্বিধা না করে ডাক্তারের কাছে যান।' },
+        medium: { icon:'🤝', topic:'স্বাস্থ্যসেবা', text:'তীব্র ব্যথা হলে যাওয়ার পরিকল্পনা করুন। প্রথমে স্থানীয় ASHA দিদির সাথে কথা বলতে পারেন।' },
+        hard:   { icon:'🌸', topic:'স্বাস্থ্যসেবা', text:'প্রথমে আপনার স্থানীয় ASHA কর্মী বা অঙ্গনওয়াড়ি দিদির সাথে কথা বলুন।' },
+      },
+    },
+    ta: {
+      l1: {
+        sitting: { icon:'🚶', topic:'உடல் செயல்பாடு', text:'காலை அல்லது மாலையில் 10 நிமிடம் வெளியே நடைப்பயிற்சி செய்யுங்கள்.' },
+        moderate:{ icon:'🌟', topic:'உடல் செயல்பாடு', text:'சிறிது ஓய்வு நேரத்தில் வெளியே நடக்கவும்.' },
+        heavy:   { icon:'💧', topic:'உடல் செயல்பாடு', text:'உடலுக்கு சரியான ஓய்வு கொடுங்கள் மற்றும் வேலையின்போது நிறைய தண்ணீர் குடியுங்கள்.' },
+      },
+      l2: {
+        healthy: { icon:'🥗', topic:'உணவு', text:'பருப்பு மற்றும் பச்சை காய்கறிகளை தொடர்ந்து சாப்பிடுங்கள்.' },
+        carbs:   { icon:'🍽️', topic:'உணவு', text:'சோறு அல்லது ரொட்டியுடன் கொஞ்சம் அதிக பருப்பு, பீன்ஸ் அல்லது பச்சை காய்கறிகள் சேர்க்கவும்.' },
+        oily:    { icon:'🍲', topic:'உணவு', text:'படிப்படியாக வறுத்த உணவு மற்றும் இனிப்பை குறைக்கவும்.' },
+      },
+      l3: {
+        low:    { icon:'💧', topic:'தண்ணீர்', text:'எழுந்தவுடன் ஒரு முழு கிளாஸ் தண்ணீர், ஒவ்வொரு உணவுக்கு முன்பும் ஒரு கிளாஸ் குடிக்கவும்.' },
+        medium: { icon:'🚿', topic:'தண்ணீர்', text:'வேலை செய்யும்போது அருகில் ஒரு சிறு கிண்ணம் தண்ணீர் வைத்திருங்கள்.' },
+        plenty: { icon:'🌊', topic:'தண்ணீர்', text:'சிறப்பு! இந்த நல்ல பழக்கத்தை தொடருங்கள்!' },
+      },
+      l4: {
+        good:   { icon:'😴', topic:'தூக்கம்', text:'நன்றாக ஓய்வெடுக்கவும்.' },
+        broken: { icon:'🌙', topic:'தூக்கம்', text:'படுக்கைக்கு முன் தேநீர் குடிக்காதீர்கள் அல்லது மொபைல் பயன்படுத்தாதீர்கள்.' },
+        poor:   { icon:'🛏️', topic:'தூக்கம்', text:'கொஞ்சம் முன்னர் படுக்கவும்.' },
+      },
+      l5: {
+        easy:   { icon:'🏥', topic:'சுகாதாரம்', text:'கடுமையான வலி அல்லது மாதவிடாய் மாற்றம் தெரிந்தால் தாமதிக்காமல் மருத்துவரை சந்தியுங்கள்.' },
+        medium: { icon:'🤝', topic:'சுகாதாரம்', text:'கடுமையான வலி இருந்தால் திட்டமிட்டு செல்லுங்கள்.' },
+        hard:   { icon:'🌸', topic:'சுகாதாரம்', text:'முதலில் ASHA பணியாளர் அல்லது அங்கன்வாடி தீதியிடம் பேசுங்கள்.' },
+      },
+    },
+  },
+
+  healthcareContent: {
+    en: {
+      easy:   { icon:'🏥', title:'Visit Your Local Clinic',       desc:'Good news — a doctor or nurse is nearby! Please make an appointment if you notice strong pain, irregular periods, or other concerns. Regular check-ups help catch things early.', tip:"You can also ask for a blood test to check your hormone levels. It's simple and very helpful!" },
+      medium: { icon:'🤝', title:'Your ASHA Didi Can Help',       desc:'Your local ASHA worker is trained to help women with health questions. Visit her first — she can give advice, refer you to the right doctor, and even help with transport.', tip:'When you do visit the clinic, try to plan it with a family member so the journey is easier.' },
+      hard:   { icon:'🌸', title:'Start With Your ASHA or Anganwadi Didi', desc:"Since reaching a doctor is hard, your closest helper is your ASHA worker or Anganwadi Didi. They are specially trained to support women's health in your area.", tip:'Government health schemes like Janani Suraksha Yojana can help cover costs and transport. Ask your ASHA worker to help you apply.' },
+    },
+    hi: {
+      easy:   { icon:'🏥', title:'अपने स्थानीय क्लीनिक जाएं',    desc:'अच्छी खबर — एक डॉक्टर या नर्स पास में है! यदि आपको तेज़ दर्द, अनियमित माहवारी या कोई अन्य चिंता हो तो अपॉइंटमेंट लें।', tip:'आप हार्मोन स्तर जांचने के लिए रक्त परीक्षण भी करवा सकती हैं। यह सरल और बहुत उपयोगी है!' },
+      medium: { icon:'🤝', title:'आपकी ASHA दीदी मदद कर सकती हैं', desc:'आपकी स्थानीय ASHA कार्यकर्ता को महिलाओं के स्वास्थ्य प्रश्नों में मदद करने का प्रशिक्षण है। पहले उनसे मिलें।', tip:'जब आप क्लीनिक जाएं, किसी परिवार के सदस्य के साथ जाने की योजना बनाएं।' },
+      hard:   { icon:'🌸', title:'ASHA या आंगनवाड़ी दीदी से शुरू करें', desc:'चूंकि डॉक्टर तक पहुंचना मुश्किल है, आपकी सबसे करीबी मददगार आपकी ASHA कार्यकर्ता या आंगनवाड़ी दीदी हैं।', tip:'जननी सुरक्षा योजना जैसी सरकारी स्वास्थ्य योजनाएं लागत और परिवहन में मदद कर सकती हैं।' },
+    },
+    bn: {
+      easy:   { icon:'🏥', title:'আপনার স্থানীয় ক্লিনিকে যান',   desc:'সুখবর — একজন ডাক্তার বা নার্স কাছেই আছেন! তীব্র ব্যথা, অনিয়মিত মাসিক বা অন্য কোনো উদ্বেগ থাকলে অ্যাপয়েন্টমেন্ট নিন।', tip:'হরমোন মাত্রা পরীক্ষার জন্য রক্ত পরীক্ষাও করাতে পারেন।' },
+      medium: { icon:'🤝', title:'আপনার ASHA দিদি সাহায্য করতে পারবেন', desc:'আপনার স্থানীয় ASHA কর্মী নারী স্বাস্থ্য প্রশ্নে সাহায্য করতে প্রশিক্ষিত।', tip:'ক্লিনিক যাওয়ার সময় পরিবারের একজন সদস্যকে সাথে নিয়ে পরিকল্পনা করুন।' },
+      hard:   { icon:'🌸', title:'ASHA বা অঙ্গনওয়াড়ি দিদি থেকে শুরু করুন', desc:'আপনার সবচেয়ে কাছের সাহায্যকারী হলেন ASHA কর্মী বা অঙ্গনওয়াড়ি দিদি।', tip:'জননী সুরক্ষা যোজনার মতো সরকারি স্বাস্থ্য প্রকল্প খরচ ও পরিবহনে সাহায্য করতে পারে।' },
+    },
+    ta: {
+      easy:   { icon:'🏥', title:'உங்கள் அருகில் உள்ள மருத்துவமனையை பாருங்கள்', desc:'நல்ல செய்தி — மருத்துவர் அல்லது நர்ஸ் அருகில் உள்ளனர்!', tip:'ஹார்மோன் அளவுகளை சரிபார்க்க ரத்த பரிசோதனை கேட்கலாம்.' },
+      medium: { icon:'🤝', title:'உங்கள் ASHA தீதி உதவலாம்', desc:'உங்கள் உள்ளூர் ASHA பணியாளர் பெண் சுகாதார கேள்விகளுக்கு உதவ பயிற்சி பெற்றுள்ளனர்.', tip:'மருத்துவமனை செல்லும்போது, குடும்ப உறுப்பினருடன் திட்டமிடுங்கள்.' },
+      hard:   { icon:'🌸', title:'ASHA அல்லது அங்கன்வாடி தீதியுடன் தொடங்குங்கள்', desc:'மருத்துவரை சென்றடைவது கஷ்டமாக இருப்பதால், ASHA பணியாளர் அல்லது அங்கன்வாடி தீதியிடம் முதலில் பேசுங்கள்.', tip:'ஜனனி சுரக்ஷா யோஜனா போன்ற அரசு திட்டங்கள் செலவு மற்றும் போக்குவரத்தில் உதவலாம்.' },
+    },
+  },
+
+  healthcareFixed: {
+    en:  { healthReminder:{ easy:"A clinic is near you! Don't wait if you feel pain or notice changes. You deserve good care! 💕", medium:'Your ASHA Didi can help first. Plan a clinic visit if symptoms are strong. National helpline: 181 📞', hard:'Speak to your local ASHA worker or Anganwadi Didi — they can guide and support you right in your village. 🌸' }},
+    hi:  { healthReminder:{ easy:'क्लीनिक पास है! दर्द होने या बदलाव दिखने पर इंतजार न करें। आप अच्छी देखभाल की हकदार हैं! 💕', medium:'पहले ASHA दीदी से मदद लें। राष्ट्रीय हेल्पलाइन: 181 📞', hard:'अपनी स्थानीय ASHA कार्यकर्ता या आंगनवाड़ी दीदी से बात करें। 🌸' }},
+    bn:  { healthReminder:{ easy:'ক্লিনিক কাছেই! ব্যথা বা পরিবর্তন দেখলে অপেক্ষা করবেন না। 💕', medium:'প্রথমে ASHA দিদির সাহায্য নিন। জাতীয় হেল্পলাইন: 181 📞', hard:'আপনার স্থানীয় ASHA কর্মী বা অঙ্গনওয়াড়ি দিদির সাথে কথা বলুন। 🌸' }},
+    ta:  { healthReminder:{ easy:'மருத்துவமனை அருகில்! வலி அல்லது மாற்றம் தெரிந்தால் காத்திருக்காதீர்கள். 💕', medium:'முதலில் ASHA தீதியிடம் உதவி கேளுங்கள். தேசிய உதவி எண்: 181 📞', hard:'உள்ளூர் ASHA பணியாளர் அல்லது அங்கன்வாடி தீதியிடம் பேசுங்கள். 🌸' }},
+  },
+};
+
+const state = { lang:'en', symAnswers:{}, lifeAnswers:{}, riskLevel:'low', riskScore:0 };
+let navHistory = [];
+
+const getSymptomQs   = () => TRANSLATIONS.symptomQs[state.lang];
+const getLifestyleQs = () => TRANSLATIONS.lifestyleQs[state.lang];
+const getAdviceData  = () => TRANSLATIONS.adviceData[state.lang];
+const getHealthcareContent = () => TRANSLATIONS.healthcareContent[state.lang];
+
+function goTo(screenId, skipHistory) {
+  skipHistory = skipHistory || false;
+  var currentEl = document.querySelector('.screen.active');
+  var current = currentEl ? currentEl.id : null;
+  if (!skipHistory && current && current !== screenId) navHistory.push(current);
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var target = document.getElementById(screenId);
+  if (!target) return;
+  target.classList.add('active');
+  window.scrollTo(0,0);
+  if (screenId==='screen-symptoms')   renderSymptomQuestions();
+  if (screenId==='screen-lifestyle')  renderLifestyleQuestions();
+  if (screenId==='screen-result')     buildResultScreen();
+  if (screenId==='screen-advice')     buildAdviceScreen();
+  if (screenId==='screen-healthcare') buildHealthcareScreen();
+  if (screenId==='screen-final')      buildFinalScreen();
+}
+
+function navigateBack() {
+  var previous = navHistory.pop();
+  goTo(previous || 'screen-welcome', true);
+}
+
+function updateStaticText() {
+  var ui = TRANSLATIONS.ui[state.lang];
+  // welcome
+  var wt = document.querySelector('#screen-welcome .welcome-title'); if(wt) wt.textContent = ui.appName;
+  var wg = document.querySelector('#screen-welcome .welcome-tagline'); if(wg) wg.textContent = ui.tagline;
+  var ll = document.querySelector('#screen-welcome .lang-label'); if(ll) ll.textContent = ui.chooseLang;
+  var wb = document.querySelector('#screen-welcome .btn-primary'); if(wb) wb.textContent = ui.letsBegin;
+  // intro
+  var it = document.querySelector('#screen-intro .welcome-title'); if(it) it.textContent = ui.introTitle;
+  var ig = document.querySelector('#screen-intro .welcome-tagline'); if(ig) ig.textContent = ui.introSub;
+  var ic = document.querySelectorAll('#screen-intro .intro-card');
+  if(ic[0]) ic[0].textContent = ui.introCard1; if(ic[1]) ic[1].textContent = ui.introCard2;
+  var ib = document.querySelector('#screen-intro .btn-primary'); if(ib) ib.textContent = ui.start;
+  // symptoms header
+  var sh = document.querySelector('#screen-symptoms .header-title'); if(sh) sh.textContent = ui.healthCheck;
+  var sn = document.getElementById('btn-sym-next'); if(sn) sn.textContent = ui.seeMyResult;
+  updateSymProgress();
+  // result
+  var rh = document.querySelector('#screen-result .header-title'); if(rh) rh.textContent = ui.yourResult;
+  var rt = document.querySelectorAll('#screen-result .reasons-title');
+  if(rt[0]) rt[0].textContent = ui.symptomsNoticed; if(rt[1]) rt[1].textContent = ui.suggestionsForYou;
+  var pbt = document.querySelector('#screen-result .pb-title'); if(pbt) pbt.textContent = ui.wantPersonalized;
+  var pbs = document.querySelector('#screen-result .pb-sub'); if(pbs) pbs.textContent = ui.wantPersonalizedSub;
+  var sl = document.querySelector('#screen-result .skip-link'); if(sl) sl.textContent = ui.skipLink;
+  // lifestyle
+  var lh = document.querySelector('#screen-lifestyle .header-title'); if(lh) lh.textContent = ui.lifestyle;
+  var ln = document.getElementById('btn-life-next'); if(ln) ln.textContent = ui.getPersonalAdvice;
+  updateLifeProgress();
+  // advice/healthcare/final
+  var ah = document.querySelector('#screen-advice .header-title'); if(ah) ah.textContent = ui.personalAdvice;
+  var an = document.querySelector('#screen-advice .btn-next'); if(an) an.textContent = ui.nextHealthcare;
+  var hh = document.querySelector('#screen-healthcare .header-title'); if(hh) hh.textContent = ui.healthcareGuidance;
+  var hn = document.querySelector('#screen-healthcare .btn-next'); if(hn) hn.textContent = ui.seeFullSummary;
+  var fh = document.querySelector('#screen-final .header-title'); if(fh) fh.textContent = ui.summary;
+  var fs = document.getElementById('final-hero-sub'); if(fs) fs.textContent = ui.basedOn(Object.keys(state.symAnswers).length);
+  var rb = document.querySelector('.restart-btn'); if(rb) rb.textContent = ui.startAgain;
+}
+
+function selectLang(btn) {
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  state.lang = btn.dataset.lang;
+  updateStaticText();
+  var cur = (document.querySelector('.screen.active')||{}).id;
+  if(cur==='screen-symptoms')   renderSymptomQuestions(true);
+  if(cur==='screen-lifestyle')  renderLifestyleQuestions(true);
+  if(cur==='screen-result')     buildResultScreen();
+  if(cur==='screen-advice')     buildAdviceScreen();
+  if(cur==='screen-healthcare') buildHealthcareScreen();
+  if(cur==='screen-final')      buildFinalScreen();
+}
+
+function renderSymptomQuestions(force) {
+  force = force||false;
+  var area = document.getElementById('sym-questions-area');
+  if(!force && area.children.length>0) return;
+  area.innerHTML='';
+  var ui = TRANSLATIONS.ui[state.lang];
+  getSymptomQs().forEach(function(q,i){
+    var sel = state.symAnswers[q.id];
+    var card = document.createElement('div');
+    card.className='q-card symptom-card'; card.id='sym-card-'+q.id;
+    card.innerHTML=
+      '<div class="q-number-pill">'+ui.questionOf(i+1,8)+'</div>'+
+      '<div class="q-question-row">'+
+        '<div class="q-question">'+q.icon+' '+q.q+'</div>'+
+        '<button class="audio-btn" onclick="playAudio(this,\''+q.q.replace(/'/g,"\\'")+'\')" title="'+ui.listen+'">🔊</button>'+
+      '</div>'+
+      '<button class="toggle-exp" onclick="toggleExp(this,\'exp-'+q.id+'\')">ℹ️ '+ui.whatDoesThisMean+'</button>'+
+      '<div class="q-explanation" id="exp-'+q.id+'">'+q.exp+'</div>'+
+      '<div class="ysn-group">'+
+        '<button class="ysn-btn'+(sel==='yes'?' active':'')+'" data-qid="'+q.id+'" data-val="yes" onclick="selectYSN(this)"><span class="btn-icon">✅</span>'+ui.yes+'</button>'+
+        '<button class="ysn-btn'+(sel==='sometimes'?' active':'')+'" data-qid="'+q.id+'" data-val="sometimes" onclick="selectYSN(this)"><span class="btn-icon">🤔</span>'+ui.sometimes+'</button>'+
+        '<button class="ysn-btn'+(sel==='no'?' active':'')+'" data-qid="'+q.id+'" data-val="no" onclick="selectYSN(this)"><span class="btn-icon">❌</span>'+ui.no+'</button>'+
+      '</div>';
+    area.appendChild(card);
+  });
+  updateSymProgress();
+}
+
+function toggleExp(btn,expId) {
+  var exp = document.getElementById(expId);
+  exp.classList.toggle('show');
+  var ui = TRANSLATIONS.ui[state.lang];
+  btn.textContent = exp.classList.contains('show') ? '▲ '+ui.hideExplanation : 'ℹ️ '+ui.whatDoesThisMean;
+}
+
+function selectYSN(btn) {
+  var qid = btn.dataset.qid, val = btn.dataset.val;
+  document.querySelectorAll('.ysn-btn[data-qid="'+qid+'"]').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  state.symAnswers[qid]=val;
+  updateSymProgress();
+  var ui=TRANSLATIONS.ui[state.lang];
+  showToast(val==='yes'?'✅ '+ui.noted:val==='sometimes'?'🤔 '+ui.gotIt:'❌ '+ui.gotIt);
+}
+
+function updateSymProgress() {
+  var count=Object.keys(state.symAnswers).length, ui=TRANSLATIONS.ui[state.lang];
+  document.getElementById('sym-progress-text').textContent=count===0?ui.questionOf(1,8):ui.answeredOf(count,8);
+  document.getElementById('sym-progress-fill').style.width=((count/8)*100)+'%';
+}
+
+function updateLifeProgress() {
+  var count=Object.keys(state.lifeAnswers).length, ui=TRANSLATIONS.ui[state.lang];
+  document.getElementById('life-progress-text').textContent=count===0?ui.questionOf(1,5):ui.answeredOf(count,5);
+  document.getElementById('life-progress-fill').style.width=((count/5)*100)+'%';
+}
+
+function playAudio(btn,text) {
+  if('speechSynthesis' in window){
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.rate=0.9; u.pitch=1.1; u.lang=TRANSLATIONS.voiceLang[state.lang];
+    btn.classList.add('playing'); btn.textContent='🔇';
+    u.onend=function(){ btn.classList.remove('playing'); btn.textContent='🔊'; };
+    window.speechSynthesis.speak(u);
+  } else {
+    showToast(TRANSLATIONS.ui[state.lang].audioNotSupported);
+  }
+}
+
+function finishSymptoms() {
+  if(Object.keys(state.symAnswers).length<8){ showToast(TRANSLATIONS.ui[state.lang].toastAnswerAll8); return; }
+  calculateRisk();
+  goTo('screen-result');
+}
+
+function calculateRisk() {
+  var scoreMap={s1:{yes:0,sometimes:2,no:3},s2:{yes:3,sometimes:2,no:0},s3:{yes:3,sometimes:2,no:0},s4:{yes:2,sometimes:1,no:0},s5:{yes:2,sometimes:1,no:0},s6:{yes:2,sometimes:1,no:0},s7:{yes:2,sometimes:1,no:0},s8:{yes:2,sometimes:1,no:0}};
+  var score=0;
+  Object.entries(state.symAnswers).forEach(function(e){ if(scoreMap[e[0]]&&scoreMap[e[0]][e[1]]!==undefined) score+=scoreMap[e[0]][e[1]]; });
+  state.riskScore=score;
+  state.riskLevel=score<=5?'low':score<=11?'moderate':'high';
+}
+
+function buildResultScreen() {
+  var ring=document.getElementById('result-ring'),
+      emoji=document.getElementById('result-emoji'),
+      label=document.getElementById('result-label'),
+      heading=document.getElementById('result-heading'),
+      subtext=document.getElementById('result-subtext'),
+      chips=document.getElementById('reasons-chips'),
+      sugg=document.getElementById('suggestions-list');
+  var res=TRANSLATIONS.results[state.lang];
+  var ui=TRANSLATIONS.ui[state.lang];
+  var symLabels=TRANSLATIONS.symLabels[state.lang];
+  var suggestionsData=TRANSLATIONS.suggestions[state.lang];
+  ring.className='result-ring result-ring-'+state.riskLevel;
+  emoji.textContent=res[state.riskLevel].emoji;
+  label.textContent=res[state.riskLevel].label;
+  heading.textContent=res[state.riskLevel].heading;
+  subtext.textContent=res[state.riskLevel].subtext;
+  chips.innerHTML='';
+  var noticed=[];
+  Object.entries(state.symAnswers).forEach(function(e){ if(e[1]==='yes'||e[1]==='sometimes') noticed.push(symLabels[e[0]]); });
+  // FIX: use ui.noSymptomsNoticed (was res.noSymptoms — key doesn't exist)
+  if(noticed.length===0){ chips.innerHTML='<span class="reason-chip">'+ui.noSymptomsNoticed+'</span>'; }
+  else { noticed.forEach(function(n){ chips.innerHTML+='<span class="reason-chip">⚡ '+n+'</span>'; }); }
+  sugg.innerHTML='';
+  suggestionsData[state.riskLevel].forEach(function(s){ sugg.innerHTML+='<div class="suggest-item"><div class="suggest-dot"></div><span>'+s+'</span></div>'; });
+}
+
+function renderLifestyleQuestions(force) {
+  force=force||false;
+  var area=document.getElementById('life-questions-area');
+  if(!force&&area.children.length>0) return;
+  area.innerHTML='';
+  var ui=TRANSLATIONS.ui[state.lang];
+  getLifestyleQs().forEach(function(q,i){
+    var sel=state.lifeAnswers[q.id];
+    var card=document.createElement('div');
+    card.className='q-card lifestyle-card';
+    var optsHtml=q.opts.map(function(o){
+      return '<button class="lifestyle-opt'+(sel===o.val?' active':'')+'" data-qid="'+q.id+'" data-val="'+o.val+'" onclick="selectLifestyle(this)">'+
+        '<span class="opt-icon">'+o.icon+'</span><span>'+o.label+'</span></button>';
+    }).join('');
+    card.innerHTML=
+      '<div class="q-number-pill">'+ui.questionOf(i+1,5)+'</div>'+
+      '<div class="q-question-row">'+
+        '<div class="q-question">'+q.icon+' '+q.q+'</div>'+
+        '<button class="audio-btn" onclick="playAudio(this,\''+q.q.replace(/'/g,"\\'")+'\')" title="'+ui.listen+'">🔊</button>'+
+      '</div>'+
+      '<div class="lifestyle-options">'+optsHtml+'</div>';
+    area.appendChild(card);
+  });
+  updateLifeProgress();
+}
+
+function selectLifestyle(btn) {
+  var qid=btn.dataset.qid;
+  document.querySelectorAll('.lifestyle-opt[data-qid="'+qid+'"]').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  state.lifeAnswers[qid]=btn.dataset.val;
+  updateLifeProgress();
+  showToast(TRANSLATIONS.ui[state.lang].saved+' 💜');
+}
+
+function finishLifestyle() {
+  if(Object.keys(state.lifeAnswers).length<5){ showToast(TRANSLATIONS.ui[state.lang].toastAnswerAll5); return; }
+  goTo('screen-advice');
+}
+
+function buildAdviceScreen() {
+  var body=document.getElementById('advice-body'); body.innerHTML='';
+  var advice=getAdviceData();
+  Object.entries(state.lifeAnswers).forEach(function(e){
+    var ad=advice[e[0]]&&advice[e[0]][e[1]]; if(!ad) return;
+    var card=document.createElement('div'); card.className='advice-item-card';
+    card.innerHTML='<div class="advice-icon-wrap">'+ad.icon+'</div>'+
+      '<div><div class="advice-topic">'+ad.topic+'</div><div class="advice-text">'+ad.text+'</div></div>';
+    body.appendChild(card);
+  });
+}
+
+// FIX: buildHealthcareScreen — was referencing fixed.nationalHelpline.* etc (those sub-objects don't exist).
+// Now reads directly from ui.* keys which DO have those strings.
+function buildHealthcareScreen() {
+  var body=document.getElementById('health-body');
+  var access=state.lifeAnswers['l5']||'medium';
+  var content=getHealthcareContent()[access];
+  var ui=TRANSLATIONS.ui[state.lang];
+  body.innerHTML=
+    '<div class="health-card" style="animation-delay:0s">'+
+      '<div class="health-card-top"><span class="health-card-icon">'+content.icon+'</span><div class="health-card-title">'+content.title+'</div></div>'+
+      '<div class="health-card-desc">'+content.desc+'</div>'+
+      '<div class="health-tip">💡 '+content.tip+'</div>'+
+    '</div>'+
+    '<div class="health-card" style="animation-delay:0.1s">'+
+      '<div class="health-card-top"><span class="health-card-icon">📞</span><div class="health-card-title">'+ui.nationalHelplineTitle+'</div></div>'+
+      '<div class="health-card-desc">'+ui.nationalHelplineDesc+'</div>'+
+      '<div class="health-tip">'+ui.nationalHelplineTip+'</div>'+
+    '</div>'+
+    '<div class="health-card" style="animation-delay:0.2s">'+
+      '<div class="health-card-top"><span class="health-card-icon">📝</span><div class="health-card-title">'+ui.whenToDoctorTitle+'</div></div>'+
+      '<div class="health-card-desc">'+ui.whenToDoctorDesc+'</div>'+
+    '</div>'+
+    '<div class="health-card" style="animation-delay:0.3s">'+
+      '<div class="health-card-top"><span class="health-card-icon">🗺️</span><div class="health-card-title">'+ui.findDoctorTitle+'</div></div>'+
+      '<div class="health-card-desc">'+ui.findDoctorDesc+'</div>'+
+      '<a href="https://www.google.com/maps/search/gynecologist+near+me" target="_blank" style="display:inline-block;margin-top:12px;padding:10px 20px;background:var(--mint);color:white;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;">'+ui.findDoctorBtn+'</a>'+
+    '</div>';
+}
+
+// FIX: buildFinalScreen — was using ui.rememberAlways (undefined) and ui.encouragement (undefined).
+// Correct keys are ui.rememberAlwaysTitle and ui.rememberAlwaysBody.
+// Also fixed healthReminder lookup: healthcareContent has no .reminder property;
+// use healthcareFixed[lang].healthReminder[access] instead.
+function buildFinalScreen() {
+  var hero=document.getElementById('final-hero');
+  var heroIcon=document.getElementById('final-hero-icon');
+  var heroLabel=document.getElementById('final-hero-label');
+  hero.className='final-hero hero-'+state.riskLevel;
+  var res=TRANSLATIONS.results[state.lang];
+  heroIcon.textContent=res[state.riskLevel].emoji;
+  heroLabel.textContent=res[state.riskLevel].label;
+  var sections=document.getElementById('final-sections');
+  var symLabels=TRANSLATIONS.symLabels[state.lang];
+  var ui=TRANSLATIONS.ui[state.lang];
+  var noticed=Object.entries(state.symAnswers).filter(function(e){ return e[1]==='yes'||e[1]==='sometimes'; }).map(function(e){ return symLabels[e[0]]; });
+  var adviceHtml='';
+  var advice=getAdviceData();
+  Object.entries(state.lifeAnswers).forEach(function(e){
+    var ad=advice[e[0]]&&advice[e[0]][e[1]];
+    if(ad) adviceHtml+='<div class="suggest-item"><div class="suggest-dot" style="background:var(--lavender)"></div><span><strong>'+ad.topic+':</strong> '+ad.text+'</span></div>';
+  });
+  // FIX: use healthcareFixed[lang].healthReminder[access]
+  var access=state.lifeAnswers['l5']||'medium';
+  var fixedLang=TRANSLATIONS.healthcareFixed[state.lang];
+  var healthReminder=(fixedLang&&fixedLang.healthReminder&&fixedLang.healthReminder[access])||getHealthcareContent()[access].desc;
+  sections.innerHTML=
+    '<div class="final-section-card">'+
+      '<div class="final-section-header"><span class="final-section-icon">🔬</span><div class="final-section-title">'+ui.riskLevelTitle+'</div></div>'+
+      '<div class="final-section-body"><span class="final-pill pill-'+state.riskLevel+'">'+res[state.riskLevel].label+'</span>'+
+      '<div style="margin-top:10px;font-size:14px;color:var(--text-soft);">'+ui.basedOn(Object.keys(state.symAnswers).length)+'</div></div>'+
+    '</div>'+
+    '<div class="final-section-card">'+
+      '<div class="final-section-header"><span class="final-section-icon">⚡</span><div class="final-section-title">'+ui.symptomsNoticed+'</div></div>'+
+      '<div class="final-section-body">'+(noticed.length>0?noticed.map(function(n){ return '<span class="reason-chip">⚡ '+n+'</span>'; }).join(''):'<span class="reason-chip">'+ui.noSymptomsNoticed+'</span>')+'</div>'+
+    '</div>'+
+    (adviceHtml?'<div class="final-section-card"><div class="final-section-header"><span class="final-section-icon">💜</span><div class="final-section-title">'+ui.personalTips+'</div></div><div class="final-section-body">'+adviceHtml+'</div></div>':'')+
+    '<div class="final-section-card">'+
+      '<div class="final-section-header"><span class="final-section-icon">🏥</span><div class="final-section-title">'+ui.healthcareReminder+'</div></div>'+
+      '<div class="final-section-body">'+healthReminder+'</div>'+
+    '</div>'+
+    '<div class="final-section-card" style="background:linear-gradient(135deg,#FFF4EF,#FFE8F0);border:2px solid var(--peach-light)">'+
+      '<div class="final-section-header"><span class="final-section-icon">💕</span><div class="final-section-title">'+ui.rememberAlwaysTitle+'</div></div>'+
+      '<div class="final-section-body">'+ui.rememberAlwaysBody+'</div>'+
+    '</div>';
+}
+
+function restartApp() {
+  state.symAnswers={}; state.lifeAnswers={}; state.riskLevel='low'; state.riskScore=0;
+  document.getElementById('sym-questions-area').innerHTML='';
+  document.getElementById('life-questions-area').innerHTML='';
+  navHistory=[];
+  goTo('screen-welcome');
+}
+
+function showToast(msg) {
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },1800);
+}
+</script>
+</body>
+</html>
